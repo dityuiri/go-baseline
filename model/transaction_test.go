@@ -79,3 +79,31 @@ func TestRawTransaction_ToTransaction(t *testing.T) {
 		assert.Error(t, err)
 	})
 }
+
+func TestTransaction_IsAccountable(t *testing.T) {
+	t.Run("true", func(t *testing.T) {
+		var trx = Transaction{Type: "E"}
+		res := trx.IsAccountable()
+		assert.True(t, res)
+	})
+
+	t.Run("false", func(t *testing.T) {
+		var trx = Transaction{Type: "BLAU"}
+		res := trx.IsAccountable()
+		assert.False(t, res)
+	})
+}
+
+func TestTransaction_IsPreviousPrice(t *testing.T) {
+	t.Run("true", func(t *testing.T) {
+		var trx = Transaction{Type: "E"}
+		res := trx.IsPreviousPrice()
+		assert.True(t, res)
+	})
+
+	t.Run("false", func(t *testing.T) {
+		var trx = Transaction{Type: "BLAU"}
+		res := trx.IsAccountable()
+		assert.False(t, res)
+	})
+}

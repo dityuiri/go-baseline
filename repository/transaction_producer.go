@@ -2,6 +2,7 @@ package repository
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"stockbit-challenge/adapter/kafka"
 	"stockbit-challenge/adapter/kafka/producer"
@@ -40,7 +41,7 @@ func (p *TransactionProducer) constructMessage(trx model.Transaction) *kafka.Mes
 	message = &kafka.Message{
 		Value: data,
 		Headers: map[string][]byte{
-			"message_id": []byte(trx.OrderNumber),
+			"message_id": []byte(fmt.Sprintf("%s-%v", trx.StockCode, trx.OrderBook)),
 		},
 	}
 

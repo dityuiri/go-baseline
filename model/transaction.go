@@ -68,3 +68,11 @@ func (r *RawTransaction) ToTransaction() (Transaction, error) {
 
 	return transaction, err
 }
+
+func (t *Transaction) IsPreviousPrice() bool {
+	return t.Quantity == 0
+}
+
+func (t *Transaction) IsAccountable() bool {
+	return t.Type == "E" || t.Type == "P"
+}

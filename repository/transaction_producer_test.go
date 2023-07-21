@@ -1,14 +1,12 @@
 package repository
 
 import (
-	"encoding/json"
 	"errors"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 
-	"stockbit-challenge/adapter/kafka"
 	"stockbit-challenge/adapter/kafka/producer/mock"
 	"stockbit-challenge/config"
 	"stockbit-challenge/model"
@@ -20,18 +18,11 @@ func TestTransactionProducer_ProduceTrx(t *testing.T) {
 		mockProducer = mock.NewMockIProducer(mockCtrl)
 
 		transaction = model.Transaction{
-			StockCode:   "BBCA",
-			OrderNumber: "81239126391",
+			StockCode: "BBCA",
+			OrderBook: 81239126391,
 		}
 
 		expectedErr = errors.New("huuuu")
-		data, _     = json.Marshal(transaction)
-		message     = &kafka.Message{
-			Value: data,
-			Headers: map[string][]byte{
-				"message_id": []byte(transaction.OrderNumber),
-			},
-		}
 
 		producer = TransactionProducer{
 			Producer: mockProducer,
@@ -45,13 +36,13 @@ func TestTransactionProducer_ProduceTrx(t *testing.T) {
 	)
 
 	t.Run("success", func(t *testing.T) {
-		mockProducer.EXPECT().Produce("transaction", message).Return(nil)
+		mockProducer.EXPECT().Produce("transaction", gomock.Any()).Return(nil)
 		err := producer.ProduceTrx(transaction)
 		assert.Nil(t, err)
 	})
 
 	t.Run("error produce", func(t *testing.T) {
-		mockProducer.EXPECT().Produce("transaction", message).Return(expectedErr)
+		mockProducer.EXPECT().Produce("transaction", gomock.Any()).Return(expectedErr)
 		err := producer.ProduceTrx(transaction)
 		assert.EqualError(t, expectedErr, err.Error())
 	})
@@ -64,17 +55,9 @@ func TestTransactionProducer_ProduceTrxDLQ(t *testing.T) {
 
 		expectedErr = errors.New("huuuu")
 		transaction = model.Transaction{
-			StockCode:   "BBCA",
-			OrderNumber: "81239126391",
-			Error:       expectedErr.Error(),
-		}
-
-		data, _ = json.Marshal(transaction)
-		message = &kafka.Message{
-			Value: data,
-			Headers: map[string][]byte{
-				"message_id": []byte(transaction.OrderNumber),
-			},
+			StockCode: "BBCA",
+			OrderBook: 81239126391,
+			Error:     expectedErr.Error(),
 		}
 
 		producer = TransactionProducer{
@@ -89,13 +72,13 @@ func TestTransactionProducer_ProduceTrxDLQ(t *testing.T) {
 	)
 
 	t.Run("success", func(t *testing.T) {
-		mockProducer.EXPECT().Produce("transaction_dlq", message).Return(nil)
+		mockProducer.EXPECT().Produce("transaction_dlq", gomock.Any()).Return(nil)
 		err := producer.ProduceTrxDLQ(transaction, expectedErr)
 		assert.Nil(t, err)
 	})
 
 	t.Run("error produce", func(t *testing.T) {
-		mockProducer.EXPECT().Produce("transaction_dlq", message).Return(expectedErr)
+		mockProducer.EXPECT().Produce("transaction_dlq", gomock.Any()).Return(expectedErr)
 		err := producer.ProduceTrxDLQ(transaction, expectedErr)
 		assert.EqualError(t, expectedErr, err.Error())
 	})
