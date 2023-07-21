@@ -1,11 +1,13 @@
 package service
 
 import (
+	"bytes"
 	"fmt"
+
 	"github.com/go-redis/redis"
-	"stockbit-challenge/repository"
 
 	"stockbit-challenge/model"
+	"stockbit-challenge/repository"
 )
 
 //go:generate mockgen -package=service_mock -destination=../mock/service/transaction_feed.go . ITransactionFeedService
@@ -13,6 +15,7 @@ import (
 type (
 	ITransactionFeedService interface {
 		TransactionRecorded(trx *model.Transaction) (bool, error)
+		ProduceTransaction(buff bytes.Buffer) error
 	}
 
 	TransactionFeedService struct {
@@ -128,4 +131,8 @@ func (s *TransactionFeedService) produceDLQ(transaction *model.Transaction, err 
 	go func() {
 		_ = s.TransactionProducer.ProduceTrxDLQ(*transaction, err)
 	}()
+}
+
+func (s *TransactionFeedService) ProduceTransaction(buff bytes.Buffer) error {
+	return nil
 }

@@ -3,10 +3,10 @@ module stockbit-challenge
 go 1.20
 
 require (
+	github.com/go-chi/chi v1.5.4
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang/mock v1.4.4
 	github.com/google/uuid v1.3.0
-	github.com/joho/godotenv v1.5.1
 	github.com/segmentio/kafka-go v0.4.42
 	github.com/spf13/viper v1.16.0
 	github.com/stretchr/testify v1.8.4

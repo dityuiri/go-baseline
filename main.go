@@ -4,11 +4,15 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"os/signal"
 	"runtime"
 	"sync"
 	"syscall"
+	"time"
+
+	"github.com/go-chi/chi"
 
 	"stockbit-challenge/application"
 	"stockbit-challenge/controller"
@@ -54,33 +58,52 @@ func main() {
 	}()
 
 	switch mode {
-	//case clientMode:
-	//	var (
-	//		httpServer = serveHTTP(app, dep)
-	//	)
-	//
-	//	if err := httpServer.Serve(); err != nil {
-	//		panic(err)
-	//	}
-	//
-	//	<-app.Context.Done()
-	//	_ = httpServer.Close()
+	case clientMode:
+		httpServer := serveHTTP(app, dep)
+		defer func(httpServer *http.Server) {
+			_ = httpServer.Close()
+		}(httpServer)
+
+		<-app.Context.Done()
 	case consumerMode:
 		consumeKafkaMessages(app, dep)
-	default: // All services run in this mode as default
-		//var (
-		//	httpServer = serveHTTP(app, dep)
-		//)
-		//
-		//if err := httpServer.Serve(); err != nil {
-		//	panic(err)
-		//}
+	default:
+		httpServer := serveHTTP(app, dep)
+		defer func(httpServer *http.Server) {
+			_ = httpServer.Close()
+		}(httpServer)
 
 		consumeKafkaMessages(app, dep)
 
 		<-app.Context.Done()
-		//_ = httpServer.Close()
 	}
+}
+
+func serveHTTP(app *application.App, dep *application.Dependency) *http.Server {
+	r := chi.NewRouter()
+
+	trxController := &controller.TransactionController{
+		TransactionFeedService: dep.TransactionFeedService,
+	}
+
+	r.Post("/publish/transaction", trxController.UploadTransactions)
+
+	s := &http.Server{
+		Addr:           fmt.Sprintf(":%v", app.Config.Const.HTTPPort),
+		Handler:        r,
+		ReadTimeout:    time.Duration(app.Config.Const.ShortTimeout) * time.Second,
+		WriteTimeout:   time.Duration(app.Config.Const.ShortTimeout) * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+
+	go func(hs *http.Server) {
+		err := hs.ListenAndServe()
+		if err != nil {
+			fmt.Println("Failed to serve http server")
+		}
+	}(s)
+
+	return s
 }
 
 func consumeKafkaMessages(app *application.App, dep *application.Dependency) {

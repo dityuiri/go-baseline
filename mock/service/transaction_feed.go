@@ -5,6 +5,7 @@
 package service_mock
 
 import (
+	bytes "bytes"
 	reflect "reflect"
 	model "stockbit-challenge/model"
 
@@ -32,6 +33,20 @@ func NewMockITransactionFeedService(ctrl *gomock.Controller) *MockITransactionFe
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockITransactionFeedService) EXPECT() *MockITransactionFeedServiceMockRecorder {
 	return m.recorder
+}
+
+// ProduceTransaction mocks base method.
+func (m *MockITransactionFeedService) ProduceTransaction(arg0 bytes.Buffer) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ProduceTransaction", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ProduceTransaction indicates an expected call of ProduceTransaction.
+func (mr *MockITransactionFeedServiceMockRecorder) ProduceTransaction(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProduceTransaction", reflect.TypeOf((*MockITransactionFeedService)(nil).ProduceTransaction), arg0)
 }
 
 // TransactionRecorded mocks base method.
