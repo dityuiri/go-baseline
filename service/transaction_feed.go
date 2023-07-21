@@ -2,6 +2,7 @@ package service
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 
 	"github.com/go-redis/redis"
@@ -34,7 +35,7 @@ func (s *TransactionFeedService) TransactionRecorded(trx *model.Transaction) (bo
 	}
 
 	// Get stock info
-	var stockInfo model.Stock
+	var stockInfo *model.Stock
 	stockInfo, err = s.StockRepository.GetStockInfo(trx.StockCode)
 	if err != nil {
 		if err != redis.Nil {
@@ -51,7 +52,7 @@ func (s *TransactionFeedService) TransactionRecorded(trx *model.Transaction) (bo
 		}
 
 		// Create new stock info
-		stockInfo = model.Stock{
+		stockInfo = &model.Stock{
 			Code:          trx.StockCode,
 			PreviousPrice: trx.Price,
 		}
@@ -82,7 +83,7 @@ func (s *TransactionFeedService) TransactionRecorded(trx *model.Transaction) (bo
 		}
 
 		// New lowest price found case
-		if trx.Price < stockInfo.LowestPrice {
+		if trx.Price < stockInfo.LowestPrice || stockInfo.LowestPrice == 0 {
 			stockInfo.LowestPrice = trx.Price
 		}
 
@@ -95,7 +96,7 @@ func (s *TransactionFeedService) TransactionRecorded(trx *model.Transaction) (bo
 	}
 
 	// Set new stock info into the redis
-	err = s.StockRepository.SetStockInfo(stockInfo)
+	err = s.StockRepository.SetStockInfo(*stockInfo)
 	if err != nil {
 		fmt.Println(fmt.Sprintf("Error setting value stock info %s", err.Error()))
 		s.produceDLQ(trx, err) // Produce DLQ and return false for systemic error
@@ -134,5 +135,29 @@ func (s *TransactionFeedService) produceDLQ(transaction *model.Transaction, err 
 }
 
 func (s *TransactionFeedService) ProduceTransaction(buff bytes.Buffer) error {
+	lines := bytes.Split(buff.Bytes(), []byte("\n"))
+	for _, rawTx := range lines {
+		var rawTransaction model.RawTransaction
+
+		if err := json.Unmarshal(rawTx, &rawTransaction); err != nil {
+			fmt.Println("Error unmarshaling JSON:", err)
+			return err
+		}
+
+		transaction, err := rawTransaction.ToTransaction()
+		if err != nil {
+			fmt.Println("Error converting raw transaction:", err)
+			return err
+		}
+
+		// Since it's not mandatory to have this helper for producing trx, skipping the error line
+		go func() {
+			err = s.TransactionProducer.ProduceTrx(transaction)
+			if err != nil {
+				fmt.Println(fmt.Sprintf("Error producing transaction for %+v", transaction))
+			}
+		}()
+	}
+
 	return nil
 }

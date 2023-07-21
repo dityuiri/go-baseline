@@ -13,7 +13,7 @@ import (
 type (
 	IStockRepository interface {
 		SetStockInfo(stock model.Stock) error
-		GetStockInfo(stockCode string) (model.Stock, error)
+		GetStockInfo(stockCode string) (*model.Stock, error)
 	}
 
 	StockRepository struct {
@@ -36,10 +36,10 @@ func (r *StockRepository) SetStockInfo(stock model.Stock) error {
 	return err
 }
 
-func (r *StockRepository) GetStockInfo(stockCode string) (model.Stock, error) {
+func (r *StockRepository) GetStockInfo(stockCode string) (*model.Stock, error) {
 	var (
 		key    = fmt.Sprintf(keyStock, stockCode)
-		result model.Stock
+		result = &model.Stock{}
 	)
 
 	err := r.Redis.GetAndParseBytes(key, result)

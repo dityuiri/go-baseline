@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"strings"
 
@@ -58,7 +59,9 @@ func (c *TransactionController) retrieveFile(r *http.Request, query string, extF
 	if err != nil {
 		return buff, err
 	}
-	defer file.Close()
+	defer func(file multipart.File) {
+		_ = file.Close()
+	}(file)
 
 	var (
 		filenameExt   string
@@ -73,7 +76,7 @@ func (c *TransactionController) retrieveFile(r *http.Request, query string, extF
 		return buff, fmt.Errorf("expecting '%s', got '%s'", extFile, filenameExt)
 	}
 
-	if _, err := io.Copy(&buff, file); err != nil {
+	if _, err = io.Copy(&buff, file); err != nil {
 		return buff, err
 	}
 

@@ -49,7 +49,7 @@ func TestStockRepository_GetStockInfo(t *testing.T) {
 			Code: "BBCA",
 		}
 
-		emptyStock = model.Stock{}
+		emptyStock = &model.Stock{}
 
 		key       = fmt.Sprintf(keyStock, stock.Code)
 		stockRepo = StockRepository{

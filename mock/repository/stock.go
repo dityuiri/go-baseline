@@ -35,10 +35,10 @@ func (m *MockIStockRepository) EXPECT() *MockIStockRepositoryMockRecorder {
 }
 
 // GetStockInfo mocks base method.
-func (m *MockIStockRepository) GetStockInfo(arg0 string) (model.Stock, error) {
+func (m *MockIStockRepository) GetStockInfo(arg0 string) (*model.Stock, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetStockInfo", arg0)
-	ret0, _ := ret[0].(model.Stock)
+	ret0, _ := ret[0].(*model.Stock)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

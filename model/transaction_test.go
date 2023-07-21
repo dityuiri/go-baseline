@@ -15,7 +15,7 @@ func TestRawTransaction_ToTransaction(t *testing.T) {
 			Quantity:         "13",
 			Price:            "20000",
 			StockCode:        "BBCA",
-			ExecutedPrice:    "20000",
+			ExecutionPrice:   "20000",
 			ExecutedQuantity: "13",
 			OrderBook:        "123",
 		}
@@ -35,7 +35,7 @@ func TestRawTransaction_ToTransaction(t *testing.T) {
 			Quantity:         "13",
 			Price:            "20000",
 			StockCode:        "BBCA",
-			ExecutedPrice:    "20000",
+			ExecutionPrice:   "20000",
 			ExecutedQuantity: "HAAAA",
 		}
 
@@ -52,7 +52,7 @@ func TestRawTransaction_ToTransaction(t *testing.T) {
 			Quantity:         "13",
 			Price:            "20000",
 			StockCode:        "BBCA",
-			ExecutedPrice:    "Sachi",
+			ExecutionPrice:   "Sachi",
 			ExecutedQuantity: "13",
 		}
 
@@ -69,7 +69,7 @@ func TestRawTransaction_ToTransaction(t *testing.T) {
 			Quantity:         "13",
 			Price:            "20000",
 			StockCode:        "BBCA",
-			ExecutedPrice:    "20000",
+			ExecutionPrice:   "20000",
 			ExecutedQuantity: "13",
 			OrderBook:        "JASDASD",
 		}

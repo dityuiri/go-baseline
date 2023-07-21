@@ -15,7 +15,7 @@ type (
 		Price            string `json:"price"`
 		StockCode        string `json:"stock_code"`
 		ExecutedQuantity string `json:"executed_quantity"`
-		ExecutedPrice    string `json:"executed_price"`
+		ExecutionPrice   string `json:"execution_price"`
 	}
 
 	Transaction struct {
@@ -35,22 +35,9 @@ func (r *RawTransaction) ToTransaction() (Transaction, error) {
 		transaction Transaction
 		qty         = r.Quantity
 		price       = r.Price
+
+		finalQty, finalPrice int64
 	)
-
-	if r.Type != "A" {
-		qty = r.ExecutedQuantity
-		price = r.ExecutedPrice
-	}
-
-	finalQty, err := strconv.ParseInt(qty, 10, 64)
-	if err != nil {
-		return transaction, errors.New("invalid quantity format")
-	}
-
-	finalPrice, err := strconv.ParseInt(price, 10, 64)
-	if err != nil {
-		return transaction, errors.New("invalid price format")
-	}
 
 	orderBook, err := strconv.ParseInt(r.OrderBook, 10, 64)
 	if err != nil {
@@ -61,9 +48,31 @@ func (r *RawTransaction) ToTransaction() (Transaction, error) {
 		Type:        r.Type,
 		OrderBook:   orderBook,
 		OrderNumber: r.OrderNumber,
-		Quantity:    finalQty,
-		Price:       finalPrice,
+		OrderVerb:   r.OrderVerb,
 		StockCode:   r.StockCode,
+	}
+
+	if r.Type != "A" {
+		qty = r.ExecutedQuantity
+		price = r.ExecutionPrice
+	}
+
+	if qty != "" {
+		finalQty, err = strconv.ParseInt(qty, 10, 64)
+		if err != nil {
+			return transaction, errors.New("invalid quantity format")
+		}
+
+		transaction.Quantity = finalQty
+	}
+
+	if price != "" {
+		finalPrice, err = strconv.ParseInt(price, 10, 64)
+		if err != nil {
+			return transaction, errors.New("invalid price format")
+		}
+
+		transaction.Price = finalPrice
 	}
 
 	return transaction, err
