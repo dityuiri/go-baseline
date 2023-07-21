@@ -10,7 +10,6 @@ type Options struct {
 
 type Option func(options *Options)
 
-// GroupID holds the optional consumer group id.
 func WithGroupID(groupID string) Option {
 	return func(options *Options) {
 		options.groupID = &groupID

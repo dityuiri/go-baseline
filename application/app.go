@@ -2,7 +2,6 @@ package application
 
 import (
 	"context"
-
 	"stockbit-challenge/adapter/kafka/consumer"
 	"stockbit-challenge/adapter/redis"
 	"stockbit-challenge/config"

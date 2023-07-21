@@ -93,6 +93,7 @@ func consumeKafkaMessages(app *application.App, dep *application.Dependency) {
 	wg.Add(1)
 
 	go func(t string, h func([]byte) (bool, error)) {
+		fmt.Println(fmt.Sprintf("creating consumer for topic %s", t))
 		kafkaListener(app, t, h)
 		wg.Done()
 	}(topics["transaction"], consumerHandler.Transaction)

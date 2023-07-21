@@ -31,6 +31,8 @@ type (
 )
 
 func LoadConfiguration() *Configuration {
+	// Initialize viper
+	viper.AutomaticEnv()
 	return &Configuration{
 		Const: loadConstants(),
 		Redis: redis.NewConfig(),

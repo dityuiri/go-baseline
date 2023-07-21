@@ -41,7 +41,7 @@ func NewConsumer(ctx context.Context, config *Configuration, opts ...Option) ICo
 	return consumer
 }
 
-// Consume will get next message and commit it immeduiately
+// Consume will get next message and commit it immediately
 func (k *Consumer) Consume(topic string) (*kafka.Message, error) {
 	if topic == "" {
 		return nil, errors.New("empty topic")
@@ -70,7 +70,7 @@ func (k *Consumer) Consume(topic string) (*kafka.Message, error) {
 	}
 }
 
-// Fetch will get next nessage but will not commit it
+// Fetch will get next message but will not commit it
 // see also: Commit(topic string, message Message)
 func (k *Consumer) Fetch(topic string) (*kafka.Message, error) {
 	if topic == "" {
