@@ -25,5 +25,3 @@ func SetupApplication(ctx context.Context) *App {
 
 	return app
 }
-
-func (app *App) Close() {}

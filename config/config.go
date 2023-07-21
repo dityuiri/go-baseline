@@ -25,6 +25,7 @@ type (
 	}
 
 	Constants struct {
+		GRPCPort     int
 		HTTPPort     int
 		ShortTimeout int
 	}
@@ -42,6 +43,7 @@ func LoadConfiguration() *Configuration {
 
 func loadConstants() *Constants {
 	return &Constants{
+		GRPCPort:     viper.GetInt("GRPC_PORT"),
 		HTTPPort:     viper.GetInt("HTTP_PORT"),
 		ShortTimeout: viper.GetInt("SHORT_TIMEOUT"),
 	}

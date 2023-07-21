@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,9 +15,11 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
+	"google.golang.org/grpc"
 
 	"stockbit-challenge/application"
 	"stockbit-challenge/controller"
+	pb "stockbit-challenge/proto/proto-golang/stock"
 )
 
 const (
@@ -37,7 +41,6 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	app := application.SetupApplication(ctx)
-	defer app.Close()
 
 	// Setup dependency injection
 	dep := application.SetupDependency(app)
@@ -64,6 +67,11 @@ func main() {
 			_ = httpServer.Close()
 		}(httpServer)
 
+		grpcServer := serveGRPC(app, dep)
+		defer func(grpcServer *grpc.Server) {
+			grpcServer.Stop()
+		}(grpcServer)
+
 		<-app.Context.Done()
 	case consumerMode:
 		consumeKafkaMessages(app, dep)
@@ -73,10 +81,41 @@ func main() {
 			_ = httpServer.Close()
 		}(httpServer)
 
+		grpcServer := serveGRPC(app, dep)
+		defer func(grpcServer *grpc.Server) {
+			grpcServer.Stop()
+		}(grpcServer)
+
 		consumeKafkaMessages(app, dep)
 
 		<-app.Context.Done()
 	}
+}
+func serveGRPC(app *application.App, dep *application.Dependency) *grpc.Server {
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", app.Config.Const.GRPCPort))
+	if err != nil {
+		log.Fatalf("cannot listen on %v\n", app.Config.Const.GRPCPort)
+	}
+
+	grpcServer := grpc.NewServer()
+
+	stockGRPCController := &controller.StockGRPCController{
+		StockService: dep.StockService,
+	}
+
+	pb.RegisterStockServerServer(grpcServer, stockGRPCController)
+	if err = grpcServer.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
+
+	go func() {
+		if err = grpcServer.Serve(lis); err != nil {
+			log.Fatalf("grpc serve error: %s\n", err)
+		}
+	}()
+
+	log.Printf("grpc running at :%v", app.Config.Const.GRPCPort)
+	return grpcServer
 }
 
 func serveHTTP(app *application.App, dep *application.Dependency) *http.Server {
@@ -99,7 +138,7 @@ func serveHTTP(app *application.App, dep *application.Dependency) *http.Server {
 	go func(hs *http.Server) {
 		err := hs.ListenAndServe()
 		if err != nil {
-			fmt.Println("Failed to serve http server")
+			log.Fatalf("Failed to serve http server")
 		}
 	}(s)
 
@@ -116,7 +155,7 @@ func consumeKafkaMessages(app *application.App, dep *application.Dependency) {
 	wg.Add(1)
 
 	go func(t string, h func([]byte) (bool, error)) {
-		fmt.Println(fmt.Sprintf("creating consumer for topic %s", t))
+		log.Println(fmt.Sprintf("creating consumer for topic %s", t))
 		kafkaListener(app, t, h)
 		wg.Done()
 	}(topics["transaction"], consumerHandler.Transaction)

@@ -7,10 +7,8 @@ import (
 )
 
 type Dependency struct {
-	StockRepository     repository.IStockRepository
-	TransactionProducer repository.ITransactionProducer
-
 	TransactionFeedService service.ITransactionFeedService
+	StockService           service.IStockService
 }
 
 func SetupDependency(app *App) *Dependency {
@@ -28,9 +26,12 @@ func SetupDependency(app *App) *Dependency {
 		TransactionProducer: trxProducer,
 	}
 
+	stockService := &service.StockService{
+		StockRepository: stockRepo,
+	}
+
 	return &Dependency{
-		StockRepository:        stockRepo,
-		TransactionProducer:    trxProducer,
 		TransactionFeedService: trxFeedService,
+		StockService:           stockService,
 	}
 }
