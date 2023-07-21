@@ -17,6 +17,7 @@ func TestRawTransaction_ToTransaction(t *testing.T) {
 			StockCode:        "BBCA",
 			ExecutedPrice:    "20000",
 			ExecutedQuantity: "13",
+			OrderBook:        "123",
 		}
 	)
 
