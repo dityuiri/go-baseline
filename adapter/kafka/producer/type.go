@@ -9,12 +9,11 @@ import (
 )
 
 type Producer struct {
-	Context context.Context
-	Config  *Configuration
+	Config *Configuration
 }
 
 type IProducer interface {
 	Close() error
 
-	Produce(topic string, messages ...*kafka.Message) error
+	Produce(ctx context.Context, topic string, messages ...*kafka.Message) error
 }

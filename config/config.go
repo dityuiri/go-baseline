@@ -87,5 +87,4 @@ func loadKafkaConfig() *Kafka {
 		},
 		ProducerTopics: mappedProducerTopics,
 	}
-
 }

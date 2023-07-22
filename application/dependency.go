@@ -17,7 +17,7 @@ func SetupDependency(app *App) *Dependency {
 	}
 
 	trxProducer := &repository.TransactionProducer{
-		Producer:    producer.NewProducer(app.Context, app.Config.Kafka.Producer),
+		Producer:    producer.NewProducer(app.Config.Kafka.Producer),
 		KafkaConfig: app.Config.Kafka,
 	}
 

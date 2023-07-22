@@ -3,10 +3,10 @@ package controller
 import (
 	"encoding/json"
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 
 	serviceMock "stockbit-challenge/mock/service"
 	"stockbit-challenge/model"
@@ -51,5 +51,4 @@ func TestConsumer_Transaction(t *testing.T) {
 		assert.True(t, res)
 		assert.Nil(t, err)
 	})
-
 }

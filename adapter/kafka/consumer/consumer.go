@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	kafkaGo "github.com/segmentio/kafka-go"
+
 	"stockbit-challenge/adapter/kafka"
 )
 
@@ -19,7 +20,7 @@ var (
 )
 
 // NewConsumer will create Consumer instance based on context and Kafka configuration
-func NewConsumer(ctx context.Context, config *Configuration, opts ...Option) IConsumer {
+func NewConsumer(config *Configuration, opts ...Option) IConsumer {
 	options := &Options{}
 
 	for _, opt := range opts {
@@ -27,8 +28,7 @@ func NewConsumer(ctx context.Context, config *Configuration, opts ...Option) ICo
 	}
 
 	consumer := &Consumer{
-		Context: ctx,
-		Config:  config,
+		Config: config,
 	}
 
 	if options.groupID != nil {
@@ -42,14 +42,14 @@ func NewConsumer(ctx context.Context, config *Configuration, opts ...Option) ICo
 }
 
 // Consume will get next message and commit it immediately
-func (k *Consumer) Consume(topic string) (*kafka.Message, error) {
+func (k *Consumer) Consume(ctx context.Context, topic string) (*kafka.Message, error) {
 	if topic == "" {
 		return nil, errors.New("empty topic")
 	}
 
 	consumer := k.getConsumer(topic)
 
-	if msg, err := consumer.ReadMessage(k.Context); err != nil {
+	if msg, err := consumer.ReadMessage(ctx); err != nil {
 		return nil, err
 	} else {
 		headers := make(kafka.Header)
@@ -72,14 +72,14 @@ func (k *Consumer) Consume(topic string) (*kafka.Message, error) {
 
 // Fetch will get next message but will not commit it
 // see also: Commit(topic string, message Message)
-func (k *Consumer) Fetch(topic string) (*kafka.Message, error) {
+func (k *Consumer) Fetch(ctx context.Context, topic string) (*kafka.Message, error) {
 	if topic == "" {
 		return nil, errors.New("empty topic")
 	}
 
 	consumer := k.getConsumer(topic)
 
-	if msg, err := consumer.FetchMessage(k.Context); err != nil {
+	if msg, err := consumer.FetchMessage(ctx); err != nil {
 		return nil, err
 	} else {
 		headers := make(kafka.Header)
@@ -101,7 +101,7 @@ func (k *Consumer) Fetch(topic string) (*kafka.Message, error) {
 }
 
 // Commit will commit message. only need topic, partition and offset.
-func (k *Consumer) Commit(topic string, message *kafka.Message) error {
+func (k *Consumer) Commit(ctx context.Context, topic string, message *kafka.Message) error {
 	if topic == "" {
 		return errors.New("empty topic")
 	}
@@ -115,7 +115,7 @@ func (k *Consumer) Commit(topic string, message *kafka.Message) error {
 		Offset:    message.Offset,
 	}
 
-	return consumer.CommitMessages(k.Context, msg)
+	return consumer.CommitMessages(ctx, msg)
 }
 
 // getConsumer get list of consumer for a specific topic
@@ -176,7 +176,7 @@ func (k *Consumer) getConsumer(topic string /*, partition int*/) *kafkaGo.Reader
 }
 
 // Close all known consumers
-func (k *Consumer) Close() error {
+func (*Consumer) Close() error {
 	var err error
 
 	var wg sync.WaitGroup

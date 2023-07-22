@@ -2,8 +2,6 @@ package consumer
 
 // Options represents options that can be used.
 type Options struct {
-	name *string
-
 	groupID     *string
 	startOffset *int64
 }

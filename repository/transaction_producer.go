@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -14,8 +15,8 @@ import (
 
 type (
 	ITransactionProducer interface {
-		ProduceTrx(trx model.Transaction) error
-		ProduceTrxDLQ(trx model.Transaction, err error) error
+		ProduceTrx(ctx context.Context, trx model.Transaction) error
+		ProduceTrxDLQ(ctx context.Context, trx model.Transaction, err error) error
 	}
 
 	TransactionProducer struct {
@@ -24,18 +25,18 @@ type (
 	}
 )
 
-func (p *TransactionProducer) ProduceTrx(trx model.Transaction) error {
+func (p *TransactionProducer) ProduceTrx(ctx context.Context, trx model.Transaction) error {
 	msg := p.constructMessage(trx)
-	return p.Producer.Produce(p.KafkaConfig.ProducerTopics["transaction"], msg)
+	return p.Producer.Produce(ctx, p.KafkaConfig.ProducerTopics["transaction"], msg)
 }
 
-func (p *TransactionProducer) ProduceTrxDLQ(trx model.Transaction, err error) error {
+func (p *TransactionProducer) ProduceTrxDLQ(ctx context.Context, trx model.Transaction, err error) error {
 	trx.Error = err.Error()
 	msg := p.constructMessage(trx)
-	return p.Producer.Produce(p.KafkaConfig.ProducerTopics["transaction_dlq"], msg)
+	return p.Producer.Produce(ctx, p.KafkaConfig.ProducerTopics["transaction_dlq"], msg)
 }
 
-func (p *TransactionProducer) constructMessage(trx model.Transaction) *kafka.Message {
+func (*TransactionProducer) constructMessage(trx model.Transaction) *kafka.Message {
 	var message *kafka.Message
 	data, _ := json.Marshal(trx)
 	message = &kafka.Message{

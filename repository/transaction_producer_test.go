@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -17,6 +18,7 @@ func TestTransactionProducer_ProduceTrx(t *testing.T) {
 		mockCtrl     = gomock.NewController(t)
 		mockProducer = mock.NewMockIProducer(mockCtrl)
 
+		ctx         = context.Background()
 		transaction = model.Transaction{
 			StockCode: "BBCA",
 			OrderBook: 81239126391,
@@ -36,14 +38,14 @@ func TestTransactionProducer_ProduceTrx(t *testing.T) {
 	)
 
 	t.Run("success", func(t *testing.T) {
-		mockProducer.EXPECT().Produce("transaction", gomock.Any()).Return(nil)
-		err := producer.ProduceTrx(transaction)
+		mockProducer.EXPECT().Produce(ctx, "transaction", gomock.Any()).Return(nil)
+		err := producer.ProduceTrx(ctx, transaction)
 		assert.Nil(t, err)
 	})
 
 	t.Run("error produce", func(t *testing.T) {
-		mockProducer.EXPECT().Produce("transaction", gomock.Any()).Return(expectedErr)
-		err := producer.ProduceTrx(transaction)
+		mockProducer.EXPECT().Produce(ctx, "transaction", gomock.Any()).Return(expectedErr)
+		err := producer.ProduceTrx(ctx, transaction)
 		assert.EqualError(t, expectedErr, err.Error())
 	})
 }
@@ -53,6 +55,7 @@ func TestTransactionProducer_ProduceTrxDLQ(t *testing.T) {
 		mockCtrl     = gomock.NewController(t)
 		mockProducer = mock.NewMockIProducer(mockCtrl)
 
+		ctx         = context.Background()
 		expectedErr = errors.New("huuuu")
 		transaction = model.Transaction{
 			StockCode: "BBCA",
@@ -72,14 +75,14 @@ func TestTransactionProducer_ProduceTrxDLQ(t *testing.T) {
 	)
 
 	t.Run("success", func(t *testing.T) {
-		mockProducer.EXPECT().Produce("transaction_dlq", gomock.Any()).Return(nil)
-		err := producer.ProduceTrxDLQ(transaction, expectedErr)
+		mockProducer.EXPECT().Produce(ctx, "transaction_dlq", gomock.Any()).Return(nil)
+		err := producer.ProduceTrxDLQ(ctx, transaction, expectedErr)
 		assert.Nil(t, err)
 	})
 
 	t.Run("error produce", func(t *testing.T) {
-		mockProducer.EXPECT().Produce("transaction_dlq", gomock.Any()).Return(expectedErr)
-		err := producer.ProduceTrxDLQ(transaction, expectedErr)
+		mockProducer.EXPECT().Produce(ctx, "transaction_dlq", gomock.Any()).Return(expectedErr)
+		err := producer.ProduceTrxDLQ(ctx, transaction, expectedErr)
 		assert.EqualError(t, expectedErr, err.Error())
 	})
 }

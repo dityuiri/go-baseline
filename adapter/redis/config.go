@@ -20,6 +20,6 @@ func NewConfig() *Config {
 		Password:   viper.GetString("REDIS_PASSWORD"),
 		Port:       viper.GetInt("REDIS_PORT"),
 		Index:      viper.GetInt("REDIS_INDEX"),
-		Expiration: viper.GetDuration("REDIS_EXPIRATION") * time.Second,
+		Expiration: viper.GetDuration("REDIS_EXPIRATION"),
 	}
 }

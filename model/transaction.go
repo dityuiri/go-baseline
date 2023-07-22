@@ -26,7 +26,7 @@ type (
 		OrderBook   int64  `json:"order_book"`
 		Price       int64  `json:"price"`
 		StockCode   string `json:"stock_code"`
-		Error       string `json:"omitempty,error"`
+		Error       string `json:"error,omitempty"`
 	}
 )
 

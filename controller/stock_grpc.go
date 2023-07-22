@@ -72,5 +72,4 @@ func (g *StockGRPCController) GetSummary(ctx context.Context, stockRequest *pb.S
 			},
 		},
 	}, nil
-
 }

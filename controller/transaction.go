@@ -44,7 +44,7 @@ func (c *TransactionController) UploadTransactions(w http.ResponseWriter, r *htt
 	c.writeResponse(w, http.StatusNoContent, "")
 }
 
-func (c *TransactionController) retrieveFile(r *http.Request, query string, extFile string) (bytes.Buffer, error) {
+func (*TransactionController) retrieveFile(r *http.Request, query string, extFile string) (bytes.Buffer, error) {
 	var buff bytes.Buffer
 
 	if query == "" {
@@ -83,7 +83,7 @@ func (c *TransactionController) retrieveFile(r *http.Request, query string, extF
 	return buff, nil
 }
 
-func (c *TransactionController) writeResponse(w http.ResponseWriter, httpStatus int, response interface{}) {
+func (*TransactionController) writeResponse(w http.ResponseWriter, httpStatus int, response interface{}) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(httpStatus)
 

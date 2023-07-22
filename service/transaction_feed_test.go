@@ -2,6 +2,7 @@ package service
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"sync"
 	"testing"
@@ -54,7 +55,7 @@ func TestTransactionFeedService_TransactionRecorded(t *testing.T) {
 		defer wg.Wait()
 
 		mockStockRepo.EXPECT().GetStockInfo(initialTrx.StockCode).Return(&model.Stock{}, expectedErr).Times(1)
-		mockTrxProducer.EXPECT().ProduceTrxDLQ(*initialTrx, expectedErr).Do(func(trx model.Transaction, err error) {
+		mockTrxProducer.EXPECT().ProduceTrxDLQ(gomock.Any(), *initialTrx, expectedErr).Do(func(ctx context.Context, trx model.Transaction, err error) {
 			wg.Done()
 		}).Return(nil)
 
@@ -85,7 +86,7 @@ func TestTransactionFeedService_TransactionRecorded(t *testing.T) {
 
 		mockStockRepo.EXPECT().GetStockInfo(initialTrx.StockCode).Return(&model.Stock{}, redis.Nil).Times(1)
 		mockStockRepo.EXPECT().SetStockInfo(gomock.Any()).Return(expectedErr).Times(1)
-		mockTrxProducer.EXPECT().ProduceTrxDLQ(*initialTrx, expectedErr).Do(func(trx model.Transaction, err error) {
+		mockTrxProducer.EXPECT().ProduceTrxDLQ(gomock.Any(), *initialTrx, expectedErr).Do(func(ctx context.Context, trx model.Transaction, err error) {
 			wg.Done()
 		}).Return(nil)
 
@@ -212,7 +213,7 @@ func TestTransactionFeedService_ProduceTransaction(t *testing.T) {
 		ndjsonData := []byte(`{"type":"A","order_book":"35","price":"4540","stock_code":"UNVR"}`)
 		buff := bytes.NewBuffer(ndjsonData)
 
-		mockTrxProducer.EXPECT().ProduceTrx(gomock.Any()).Do(func(trx model.Transaction) {
+		mockTrxProducer.EXPECT().ProduceTrx(gomock.Any(), gomock.Any()).Do(func(ctx context.Context, trx model.Transaction) {
 			wg.Done()
 		}).Return(nil)
 
@@ -227,7 +228,7 @@ func TestTransactionFeedService_ProduceTransaction(t *testing.T) {
 		ndjsonData := []byte(`{"type":"A","order_book":"35","price":"4540","stock_code":"UNVR"}`)
 		buff := bytes.NewBuffer(ndjsonData)
 
-		mockTrxProducer.EXPECT().ProduceTrx(gomock.Any()).Do(func(trx model.Transaction) {
+		mockTrxProducer.EXPECT().ProduceTrx(gomock.Any(), gomock.Any()).Do(func(ctx context.Context, trx model.Transaction) {
 			wg.Done()
 		}).Return(errors.New("error"))
 

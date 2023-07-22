@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"errors"
 	"fmt"
 
 	"stockbit-challenge/adapter/redis"
@@ -30,7 +29,7 @@ func (r *StockRepository) SetStockInfo(stock model.Stock) error {
 
 	err := r.Redis.SetAsBytes(key, stock)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Err set stock info: %s", err))
+		return fmt.Errorf(fmt.Sprintf("Err set stock info: %s", err))
 	}
 
 	return err

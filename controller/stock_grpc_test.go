@@ -3,17 +3,18 @@ package controller
 import (
 	"context"
 	"errors"
-	"github.com/go-redis/redis"
-	"github.com/stretchr/testify/assert"
-	"google.golang.org/grpc/codes"
 	"net"
-	"stockbit-challenge/model"
 	"testing"
 
+	"github.com/go-redis/redis"
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 
 	serviceMock "stockbit-challenge/mock/service"
+	"stockbit-challenge/model"
 	pb "stockbit-challenge/proto/proto-golang/stock"
 )
 
@@ -32,14 +33,14 @@ func setupTestServer(t *testing.T, server *StockGRPCController) (*grpc.Server, *
 
 	// Start the gRPC server in a separate goroutine
 	go func() {
-		if err := s.Serve(lis); err != nil {
+		if err = s.Serve(lis); err != nil {
 			t.Errorf("failed to serve: %v", err)
 			return
 		}
 	}()
 
 	// Create a gRPC client to connect to the test server
-	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithInsecure())
+	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		t.Fatalf("failed to dial: %v", err)
 	}

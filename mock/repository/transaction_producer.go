@@ -5,6 +5,7 @@
 package repository_mock
 
 import (
+	context "context"
 	reflect "reflect"
 	model "stockbit-challenge/model"
 
@@ -35,29 +36,29 @@ func (m *MockITransactionProducer) EXPECT() *MockITransactionProducerMockRecorde
 }
 
 // ProduceTrx mocks base method.
-func (m *MockITransactionProducer) ProduceTrx(arg0 model.Transaction) error {
+func (m *MockITransactionProducer) ProduceTrx(arg0 context.Context, arg1 model.Transaction) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProduceTrx", arg0)
+	ret := m.ctrl.Call(m, "ProduceTrx", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ProduceTrx indicates an expected call of ProduceTrx.
-func (mr *MockITransactionProducerMockRecorder) ProduceTrx(arg0 interface{}) *gomock.Call {
+func (mr *MockITransactionProducerMockRecorder) ProduceTrx(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProduceTrx", reflect.TypeOf((*MockITransactionProducer)(nil).ProduceTrx), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProduceTrx", reflect.TypeOf((*MockITransactionProducer)(nil).ProduceTrx), arg0, arg1)
 }
 
 // ProduceTrxDLQ mocks base method.
-func (m *MockITransactionProducer) ProduceTrxDLQ(arg0 model.Transaction, arg1 error) error {
+func (m *MockITransactionProducer) ProduceTrxDLQ(arg0 context.Context, arg1 model.Transaction, arg2 error) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProduceTrxDLQ", arg0, arg1)
+	ret := m.ctrl.Call(m, "ProduceTrxDLQ", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // ProduceTrxDLQ indicates an expected call of ProduceTrxDLQ.
-func (mr *MockITransactionProducerMockRecorder) ProduceTrxDLQ(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockITransactionProducerMockRecorder) ProduceTrxDLQ(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProduceTrxDLQ", reflect.TypeOf((*MockITransactionProducer)(nil).ProduceTrxDLQ), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProduceTrxDLQ", reflect.TypeOf((*MockITransactionProducer)(nil).ProduceTrxDLQ), arg0, arg1, arg2)
 }

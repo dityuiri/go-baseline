@@ -60,7 +60,7 @@ func (r *redisClient) Status() map[string]interface{} {
 		return status
 	}
 
-	serverInfo := strings.Replace(strCmd.Val(), "\r", "", -1)
+	serverInfo := strings.ReplaceAll(strCmd.Val(), "\r", "")
 	infoAttributes := strings.Split(serverInfo, "\n")
 
 	for _, attribute := range infoAttributes {

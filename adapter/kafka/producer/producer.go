@@ -21,10 +21,9 @@ var (
 )
 
 // NewProducer will create Producer instance based on context and Kafka configuration
-func NewProducer(ctx context.Context, config *Configuration) IProducer {
+func NewProducer(config *Configuration) IProducer {
 	producer := &Producer{
-		Context: ctx,
-		Config:  config,
+		Config: config,
 	}
 
 	return producer
@@ -67,7 +66,7 @@ func (k *Producer) getProducer(topic string) *kafkaGo.Writer {
 	return producer
 }
 
-func (k *Producer) transformHeaders(header kafka.Header) []kafkaGo.Header {
+func (*Producer) transformHeaders(header kafka.Header) []kafkaGo.Header {
 	var headers []kafkaGo.Header
 
 	hasMessageID := false
@@ -102,7 +101,7 @@ func (k *Producer) transformHeaders(header kafka.Header) []kafkaGo.Header {
 }
 
 // Produce do the producing a message to specific topic
-func (k *Producer) Produce(topic string, messages ...*kafka.Message) error {
+func (k *Producer) Produce(ctx context.Context, topic string, messages ...*kafka.Message) error {
 	if topic == "" {
 		return errors.New("empty topic")
 	}
@@ -133,14 +132,13 @@ func (k *Producer) Produce(topic string, messages ...*kafka.Message) error {
 
 	// Write message
 	return producer.WriteMessages(
-		k.Context,
-
+		ctx,
 		msgs...,
 	)
 }
 
 // Close all known producers
-func (k *Producer) Close() error {
+func (*Producer) Close() error {
 	var err error
 
 	var wg sync.WaitGroup

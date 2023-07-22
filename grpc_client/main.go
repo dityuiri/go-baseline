@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	"google.golang.org/grpc/credentials/insecure"
 	"log"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	pb "stockbit-challenge/proto/proto-golang/stock"
 )
@@ -30,7 +30,7 @@ func main() {
 
 	response, err := client.GetSummary(context.Background(), stockRequest)
 	if err != nil {
-		log.Fatalf("could not get summary: %v", err)
+		log.Printf("could not get summary: %v", err)
 	}
 
 	// Use the response from the server
