@@ -1,13 +1,16 @@
 package model
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/assert"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 )
 
-func TestRawTransaction_ToTransaction(t *testing.T) {
+var _ = Describe("RawTransaction to Transaction", func() {
 	var (
+		rawTypeE RawTransaction
+	)
+
+	BeforeEach(func() {
 		rawTypeE = RawTransaction{
 			Type:             "E",
 			OrderNumber:      "12831289312389",
@@ -19,91 +22,109 @@ func TestRawTransaction_ToTransaction(t *testing.T) {
 			ExecutedQuantity: "13",
 			OrderBook:        "123",
 		}
-	)
-
-	t.Run("positive", func(t *testing.T) {
-		trx, err := rawTypeE.ToTransaction()
-		assert.NotEmpty(t, trx)
-		assert.Nil(t, err)
 	})
 
-	t.Run("invalid quantity", func(t *testing.T) {
-		rawTypeInvalid := RawTransaction{
-			Type:             "E",
-			OrderNumber:      "12831289312389",
-			OrderVerb:        "S",
-			Quantity:         "13",
-			Price:            "20000",
-			StockCode:        "BBCA",
-			ExecutionPrice:   "20000",
-			ExecutedQuantity: "HAAAA",
-		}
-
-		trx, err := rawTypeInvalid.ToTransaction()
-		assert.Empty(t, trx)
-		assert.Error(t, err)
+	Context("Positive", func() {
+		It("should convert rawTypeE to transaction successfully", func() {
+			trx, err := rawTypeE.ToTransaction()
+			Expect(trx).ToNot(BeNil())
+			Expect(err).ToNot(HaveOccurred())
+		})
 	})
 
-	t.Run("invalid price", func(t *testing.T) {
-		rawTypeInvalid := RawTransaction{
-			Type:             "E",
-			OrderNumber:      "12831289312389",
-			OrderVerb:        "S",
-			Quantity:         "13",
-			Price:            "20000",
-			StockCode:        "BBCA",
-			ExecutionPrice:   "Sachi",
-			ExecutedQuantity: "13",
-		}
+	Context("Invalid quantity", func() {
+		It("should return an error", func() {
+			rawTypeInvalid := RawTransaction{
+				Type:             "E",
+				OrderNumber:      "12831289312389",
+				OrderVerb:        "S",
+				Quantity:         "13",
+				Price:            "20000",
+				StockCode:        "BBCA",
+				ExecutionPrice:   "20000",
+				ExecutedQuantity: "HAAAA",
+				OrderBook:        "123",
+			}
 
-		trx, err := rawTypeInvalid.ToTransaction()
-		assert.Empty(t, trx)
-		assert.Error(t, err)
+			trx, err := rawTypeInvalid.ToTransaction()
+			Expect(trx.StockCode).To(BeIdenticalTo("BBCA"))
+			Expect(err).To(HaveOccurred())
+		})
 	})
 
-	t.Run("invalid order book", func(t *testing.T) {
-		rawTypeInvalid := RawTransaction{
-			Type:             "E",
-			OrderNumber:      "12831289312389",
-			OrderVerb:        "S",
-			Quantity:         "13",
-			Price:            "20000",
-			StockCode:        "BBCA",
-			ExecutionPrice:   "20000",
-			ExecutedQuantity: "13",
-			OrderBook:        "JASDASD",
-		}
+	Context("Invalid price", func() {
+		It("should return an error", func() {
+			rawTypeInvalid := RawTransaction{
+				Type:             "E",
+				OrderNumber:      "12831289312389",
+				OrderVerb:        "S",
+				Quantity:         "13",
+				Price:            "20000",
+				StockCode:        "BBCA",
+				ExecutionPrice:   "Sachi",
+				ExecutedQuantity: "13",
+				OrderBook:        "123",
+			}
 
-		trx, err := rawTypeInvalid.ToTransaction()
-		assert.Empty(t, trx)
-		assert.Error(t, err)
-	})
-}
-
-func TestTransaction_IsAccountable(t *testing.T) {
-	t.Run("true", func(t *testing.T) {
-		var trx = Transaction{Type: "E"}
-		res := trx.IsAccountable()
-		assert.True(t, res)
+			trx, err := rawTypeInvalid.ToTransaction()
+			Expect(trx.StockCode).To(BeIdenticalTo("BBCA"))
+			Expect(err).To(HaveOccurred())
+		})
 	})
 
-	t.Run("false", func(t *testing.T) {
-		var trx = Transaction{Type: "BLAU"}
-		res := trx.IsAccountable()
-		assert.False(t, res)
-	})
-}
+	Context("Invalid order book", func() {
+		It("should return an error", func() {
+			rawTypeInvalid := RawTransaction{
+				Type:             "E",
+				OrderNumber:      "12831289312389",
+				OrderVerb:        "S",
+				Quantity:         "13",
+				Price:            "20000",
+				StockCode:        "BBCA",
+				ExecutionPrice:   "20000",
+				ExecutedQuantity: "13",
+				OrderBook:        "JASDASD",
+			}
 
-func TestTransaction_IsPreviousPrice(t *testing.T) {
-	t.Run("true", func(t *testing.T) {
-		var trx = Transaction{Type: "E"}
-		res := trx.IsPreviousPrice()
-		assert.True(t, res)
+			trx, err := rawTypeInvalid.ToTransaction()
+			Expect(trx.StockCode).To(BeEmpty())
+			Expect(err).To(HaveOccurred())
+		})
+	})
+})
+
+var _ = Describe("Transaction IsAccountable", func() {
+	Context("True", func() {
+		It("should return true", func() {
+			var trx = Transaction{Type: "E"}
+			res := trx.IsAccountable()
+			Expect(res).To(BeTrue())
+		})
 	})
 
-	t.Run("false", func(t *testing.T) {
-		var trx = Transaction{Type: "BLAU"}
-		res := trx.IsAccountable()
-		assert.False(t, res)
+	Context("False", func() {
+		It("should return false", func() {
+			var trx = Transaction{Type: "BLAU"}
+			res := trx.IsAccountable()
+			Expect(res).To(BeFalse())
+		})
 	})
-}
+})
+
+var _ = Describe("Transaction IsPreviousPrice", func() {
+	Context("True", func() {
+		It("should return true", func() {
+			var trx = Transaction{Type: "E"}
+			res := trx.IsPreviousPrice()
+			Expect(res).To(BeTrue())
+		})
+	})
+
+	Context("False", func() {
+		It("should return false", func() {
+			var trx = Transaction{Type: "BLAU"}
+			res := trx.IsAccountable()
+			Expect(res).To(BeFalse())
+		})
+	})
+})

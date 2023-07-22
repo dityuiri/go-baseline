@@ -3,18 +3,27 @@ package controller
 import (
 	"encoding/json"
 	"errors"
-	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
 
 	serviceMock "stockbit-challenge/mock/service"
 	"stockbit-challenge/model"
 )
 
-func TestConsumer_Transaction(t *testing.T) {
+var _ = Describe("Consumer Handler", func() {
 	var (
-		mockCtrl    = gomock.NewController(t)
+		mockCtrl    *gomock.Controller
+		mockTrxFeed *serviceMock.MockITransactionFeedService
+
+		transaction model.Transaction
+
+		consumer ConsumerHandler
+	)
+
+	BeforeEach(func() {
+		mockCtrl = gomock.NewController(GinkgoT())
 		mockTrxFeed = serviceMock.NewMockITransactionFeedService(mockCtrl)
 
 		transaction = model.Transaction{
@@ -24,31 +33,41 @@ func TestConsumer_Transaction(t *testing.T) {
 		consumer = ConsumerHandler{
 			TransactionFeed: mockTrxFeed,
 		}
-	)
-
-	defer mockCtrl.Finish()
-
-	t.Run("negative invalid message", func(t *testing.T) {
-		var message = []byte("kechawww")
-
-		res, err := consumer.Transaction(message)
-		assert.NotNil(t, err)
-		assert.True(t, res)
 	})
 
-	t.Run("feed returns error", func(t *testing.T) {
-		request, _ := json.Marshal(&transaction)
-		mockTrxFeed.EXPECT().TransactionRecorded(gomock.Any()).Return(false, errors.New("error"))
-		res, err := consumer.Transaction(request)
-		assert.False(t, res)
-		assert.EqualError(t, err, "error")
+	AfterEach(func() {
+		mockCtrl.Finish()
 	})
 
-	t.Run("positive", func(t *testing.T) {
-		request, _ := json.Marshal(&transaction)
-		mockTrxFeed.EXPECT().TransactionRecorded(gomock.Any()).Return(true, nil)
-		res, err := consumer.Transaction(request)
-		assert.True(t, res)
-		assert.Nil(t, err)
+	Context("Negative invalid message", func() {
+		It("should return an error", func() {
+			message := []byte("kechawww")
+
+			res, err := consumer.Transaction(message)
+			Expect(err).ToNot(BeNil())
+			Expect(res).To(BeTrue())
+		})
 	})
-}
+
+	Context("Feed returns error", func() {
+		It("should return an error", func() {
+			request, _ := json.Marshal(&transaction)
+			mockTrxFeed.EXPECT().TransactionRecorded(gomock.Any()).Return(false, errors.New("error"))
+
+			res, err := consumer.Transaction(request)
+			Expect(res).To(BeFalse())
+			Expect(err).To(MatchError("error"))
+		})
+	})
+
+	Context("Positive", func() {
+		It("should not return an error", func() {
+			request, _ := json.Marshal(&transaction)
+			mockTrxFeed.EXPECT().TransactionRecorded(gomock.Any()).Return(true, nil)
+
+			res, err := consumer.Transaction(request)
+			Expect(res).To(BeTrue())
+			Expect(err).ToNot(HaveOccurred())
+		})
+	})
+})

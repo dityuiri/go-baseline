@@ -25,7 +25,7 @@ run:
 
 test:
 	export GOSUMDB=off
-	go test ./...
+	ginkgo -r
 
 test-coverage: ensure-out-dir
 	export GOSUMDB=off

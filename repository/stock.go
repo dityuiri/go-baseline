@@ -29,7 +29,7 @@ func (r *StockRepository) SetStockInfo(stock model.Stock) error {
 
 	err := r.Redis.SetAsBytes(key, stock)
 	if err != nil {
-		return fmt.Errorf(fmt.Sprintf("Err set stock info: %s", err))
+		return fmt.Errorf(fmt.Sprintf("err set stock info: %s", err))
 	}
 
 	return err
