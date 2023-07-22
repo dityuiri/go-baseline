@@ -1,0 +1,52 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+actor User
+User -> HTTPServer: POST /publish/transaction
+activate HTTPServer
+activate Kafka
+activate Redis
+
+group goroutine
+   loop .ndjson line
+        HTTPServer -> Kafka: ProduceTrx(transaction)
+   end
+end
+
+HTTPServer --> User: 204 No Content
+deactivate HTTPServer
+
+Consumer --> Kafka: Consume TransactionRecorded()
+activate Consumer
+Consumer -> Consumer: isValidTransaction()
+Consumer -> Redis: GetStockInfo(transaction.stockCode)
+Redis --> Consumer: Stock Info
+alt error != redis.NIL
+    Consumer -> Kafka: ProduceTrxDLQ(transaction, err)
+end
+
+alt redis.NIL
+    Consumer -> Consumer: validate !trx.IsPreviousPrice() || trx.IsAccountable()
+else
+    Consumer -> Consumer: validate trx.IsPreviousPrice() || !trx.IsAccountable()
+    Consumer -> Consumer: recalculateStockSummaryInfo(stockInfo, transaction)
+end
+
+Consumer -> Redis: SetStockInfo(stockInfo)
+Redis --> Consumer: Ok / error
+
+alt error != nil
+    Consumer -> Kafka: ProduceTrxDLQ(transaction, err)
+end
+
+
+deactivate Consumer
+
+deactivate Redis
+deactivate Kafka
+
+
+
+@enduml

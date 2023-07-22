@@ -11,7 +11,7 @@ services:
       - REDIS_PORT=6379
       - REDIS_INDEX=0
       - REDIS_PASSWORD=
-      - KAFKA_BROKERS=kafka-dev.mapan.io:9092
+      - KAFKA_BROKERS=host.docker.internal:9092
       - KAFKA_GROUP_ID=dt-local
       - PRODUCER_TOPICS="transaction_dlq:dt-transaction_dlq;transaction:dt-transaction"
       - CONSUMER_TOPICS="transaction:dt-transaction"
