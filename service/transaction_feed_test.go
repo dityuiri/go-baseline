@@ -224,56 +224,76 @@ var _ = Describe("TransactionFeedService", func() {
 
 	Describe("ProduceTransaction", func() {
 		Context("Unmarshal error", func() {
-			It("should return an error", func() {
+			It("should be ok", func() {
 				invalidNdjsonData := []byte(`\n`)
 				buff := bytes.NewBuffer(invalidNdjsonData)
 
-				err := service.ProduceTransaction(*buff)
-				Expect(err).To(HaveOccurred())
+				wg.Add(1)
+
+				go func() {
+					defer wg.Done()
+					err := service.ProduceTransaction(*buff)
+					Expect(err).NotTo(HaveOccurred())
+				}()
+
+				wg.Wait()
 			})
 		})
 
 		Context("Invalid raw transaction data", func() {
-			It("should return an error", func() {
+			It("should be ok", func() {
 				invalidNdjsonData := []byte(`{"type":"A","order_book":"35","price":"haha","stock_code":"UNVR"}`)
 				buff := bytes.NewBuffer(invalidNdjsonData)
 
-				err := service.ProduceTransaction(*buff)
-				Expect(err).To(HaveOccurred())
+				wg.Add(1)
+
+				go func() {
+					defer wg.Done()
+					err := service.ProduceTransaction(*buff)
+					Expect(err).NotTo(HaveOccurred())
+				}()
+
+				wg.Wait()
 			})
 		})
 
 		Context("Positive - all ok", func() {
 			It("should not return an error", func() {
-				wg.Add(1)
-				defer wg.Wait()
 
 				ndjsonData := []byte(`{"type":"A","order_book":"35","price":"4540","stock_code":"UNVR"}`)
 				buff := bytes.NewBuffer(ndjsonData)
 
-				mockTrxProducer.EXPECT().ProduceTrx(gomock.Any(), gomock.Any()).Do(func(ctx context.Context, trx model.Transaction) {
-					wg.Done()
-				}).Return(nil)
+				wg.Add(1)
 
-				err := service.ProduceTransaction(*buff)
-				Expect(err).ToNot(HaveOccurred())
+				mockTrxProducer.EXPECT().ProduceTrx(gomock.Any(), gomock.Any()).Do(func(ctx context.Context, transaction model.Transaction) {
+					defer wg.Done()
+				}).Return(nil).Times(1)
+
+				go func() {
+					err := service.ProduceTransaction(*buff)
+					Expect(err).ToNot(HaveOccurred())
+				}()
+
+				wg.Wait()
 			})
 		})
 
 		Context("Positive - produce error", func() {
 			It("should not return an error", func() {
-				wg.Add(1)
-				defer wg.Wait()
-
 				ndjsonData := []byte(`{"type":"A","order_book":"35","price":"4540","stock_code":"UNVR"}`)
 				buff := bytes.NewBuffer(ndjsonData)
 
-				mockTrxProducer.EXPECT().ProduceTrx(gomock.Any(), gomock.Any()).Do(func(ctx context.Context, trx model.Transaction) {
-					wg.Done()
-				}).Return(errors.New("error"))
+				wg.Add(1)
+				mockTrxProducer.EXPECT().ProduceTrx(gomock.Any(), gomock.Any()).Do(func(ctx context.Context, transaction model.Transaction) {
+					defer wg.Done()
+				}).Return(errors.New("error")).Times(1)
 
-				err := service.ProduceTransaction(*buff)
-				Expect(err).ToNot(HaveOccurred())
+				go func() {
+					err := service.ProduceTransaction(*buff)
+					Expect(err).ToNot(HaveOccurred())
+				}()
+
+				wg.Wait()
 			})
 		})
 	})

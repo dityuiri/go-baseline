@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -11,6 +12,15 @@ import (
 )
 
 func main() {
+	var (
+		args = os.Args[1:]
+		code string
+	)
+
+	if len(args) > 0 {
+		code = os.Args[1]
+	}
+
 	// Connect to the gRPC server
 	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -23,9 +33,9 @@ func main() {
 
 	client := pb.NewStockServerClient(conn)
 
-	// Try calling with BBCA
+	// Code is from input
 	stockRequest := &pb.Stock{
-		Code: "BBCA",
+		Code: code,
 	}
 
 	response, err := client.GetSummary(context.Background(), stockRequest)

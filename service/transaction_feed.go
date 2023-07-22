@@ -118,29 +118,30 @@ func (s *TransactionFeedService) produceDLQ(transaction *model.Transaction, err 
 
 func (s *TransactionFeedService) ProduceTransaction(buff bytes.Buffer) error {
 	lines := bytes.Split(buff.Bytes(), []byte("\n"))
-	for _, rawTx := range lines {
-		var rawTransaction model.RawTransaction
 
-		if err := json.Unmarshal(rawTx, &rawTransaction); err != nil {
-			log.Println("Error unmarshaling JSON:", err)
-			return err
-		}
+	go func() {
+		for _, rawTx := range lines {
+			var rawTransaction model.RawTransaction
 
-		transaction, err := rawTransaction.ToTransaction()
-		if err != nil {
-			log.Println("Error converting raw transaction:", err)
-			return err
-		}
+			if err := json.Unmarshal(rawTx, &rawTransaction); err != nil {
+				log.Println("Error unmarshaling JSON:", err)
+				continue
+			}
 
-		// Since it's not mandatory to have this helper for producing trx, skipping the error line
-		go func() {
+			transaction, err := rawTransaction.ToTransaction()
+			if err != nil {
+				log.Println("Error converting raw transaction:", err)
+				continue
+			}
+
+			// Since it's not mandatory to have this helper for producing trx, skipping the error line
 			ctx := context.Background()
 			err = s.TransactionProducer.ProduceTrx(ctx, transaction)
 			if err != nil {
 				log.Printf("Error producing transaction for %+v", transaction)
 			}
-		}()
-	}
+		}
+	}()
 
 	return nil
 }

@@ -7,8 +7,8 @@ import (
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	mock2 "stockbit-challenge/adapter/kafka/producer/mock"
 
+	mock2 "stockbit-challenge/adapter/kafka/producer/mock"
 	"stockbit-challenge/config"
 	"stockbit-challenge/model"
 )
