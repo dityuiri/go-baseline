@@ -1,20 +1,24 @@
 package application
 
 import (
-	"stockbit-challenge/adapter/kafka/consumer"
-	"stockbit-challenge/adapter/redis"
-	"stockbit-challenge/config"
+	"context"
+
+	"github.com/dityuiri/go-baseline/adapter/kafka/consumer"
+	"github.com/dityuiri/go-baseline/adapter/redis"
+	"github.com/dityuiri/go-baseline/config"
 )
 
 type App struct {
+	Context  context.Context
 	Config   *config.Configuration
 	Consumer consumer.IConsumer
 	Redis    redis.IRedis
 }
 
-func SetupApplication() *App {
+func SetupApplication(ctx context.Context) *App {
 	app := &App{
-		Config: config.LoadConfiguration(),
+		Context: ctx,
+		Config:  config.LoadConfiguration(),
 	}
 
 	app.Consumer = consumer.NewConsumer(app.Config.Kafka.Consumer)

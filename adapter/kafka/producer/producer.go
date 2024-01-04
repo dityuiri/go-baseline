@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	kafkaGo "github.com/segmentio/kafka-go"
 
-	"stockbit-challenge/adapter/kafka"
+	"github.com/dityuiri/go-baseline/adapter/kafka"
 )
 
 const (

@@ -3,8 +3,8 @@ package repository
 import (
 	"fmt"
 
-	"stockbit-challenge/adapter/redis"
-	"stockbit-challenge/model"
+	"github.com/dityuiri/go-baseline/adapter/redis"
+	"github.com/dityuiri/go-baseline/model"
 )
 
 //go:generate mockgen -package=repository_mock -destination=../mock/repository/stock.go . IStockRepository

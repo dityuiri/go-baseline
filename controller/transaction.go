@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"strings"
 
-	"stockbit-challenge/service"
+	"github.com/dityuiri/go-baseline/service"
 )
 
 const (

@@ -5,7 +5,7 @@ package producer
 import (
 	"context"
 
-	"stockbit-challenge/adapter/kafka"
+	"github.com/dityuiri/go-baseline/adapter/kafka"
 )
 
 type Producer struct {

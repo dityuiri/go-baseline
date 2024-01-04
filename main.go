@@ -2,29 +2,24 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"io"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"runtime"
-	"sync"
 	"syscall"
 	"time"
 
-	"github.com/go-chi/chi"
-	"google.golang.org/grpc"
-
-	"stockbit-challenge/application"
-	"stockbit-challenge/controller"
-	pb "stockbit-challenge/proto/proto-golang/stock"
+	"github.com/dityuiri/go-baseline/adapter/server"
+	"github.com/dityuiri/go-baseline/application"
+	"github.com/dityuiri/go-baseline/controller"
 )
 
 const (
-	clientMode   = "client"
-	consumerMode = "consumer"
+	clientMode = "client"
+	// consumerMode = "consumer"
+
+	defaultTimeout = 5 * time.Second
 )
 
 func main() {
@@ -40,13 +35,10 @@ func main() {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	app := application.SetupApplication()
+	app := application.SetupApplication(ctx)
 
 	// Setup dependency injection
 	dep := application.SetupDependency(app)
-
-	// Create a WaitGroup to track the goroutines.
-	var wg sync.WaitGroup
 
 	// Goroutine to cancel when Os interrupt happens
 	go func() {
@@ -59,159 +51,125 @@ func main() {
 
 	switch mode {
 	case clientMode:
-		httpServer := serveHTTP(ctx, app, dep, &wg)
-		defer func(httpServer *http.Server) {
-			_ = httpServer.Close()
-		}(httpServer)
+		var (
+			httpServer = serveHTTP(app, dep)
+		)
+		if err := httpServer.Serve(); err != nil {
+			panic(err)
+		}
 
-		grpcServer := serveGRPC(ctx, app, dep, &wg)
-		defer func(grpcServer *grpc.Server) {
-			grpcServer.GracefulStop()
-		}(grpcServer)
+		<-app.Context.Done()
+		_ = httpServer.Close()
+	//case consumerMode:
+	//	consumeKafkaMessages(app, dep)
+	default: // All services run in this mode as default
+		var (
+			httpServer = serveHTTP(app, dep)
+		)
 
-		wg.Wait()
-	case consumerMode:
-		consumeKafkaMessages(ctx, app, dep, &wg)
-	default:
-		httpServer := serveHTTP(ctx, app, dep, &wg)
-		defer func(httpServer *http.Server) {
-			_ = httpServer.Close()
-		}(httpServer)
+		if err := httpServer.Serve(); err != nil {
+			panic(err)
+		}
 
-		grpcServer := serveGRPC(ctx, app, dep, &wg)
-		defer func(grpcServer *grpc.Server) {
-			grpcServer.GracefulStop()
-		}(grpcServer)
+		//consumeKafkaMessages(app, dep)
 
-		consumeKafkaMessages(ctx, app, dep, &wg)
-		wg.Wait()
+		<-app.Context.Done()
+		_ = httpServer.Close()
 	}
 }
-func serveGRPC(ctx context.Context, app *application.App, dep *application.Dependency, wg *sync.WaitGroup) *grpc.Server {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%v", app.Config.Const.GRPCPort))
-	if err != nil {
-		log.Fatalf("cannot listen on %v\n", app.Config.Const.GRPCPort)
+
+func serveHTTP(app *application.App, dep *application.Dependency) server.IServer {
+	config := &server.Configuration{
+		AppName: app.Config.AppName,
+		Port:    app.Config.Const.HTTPPort,
 	}
 
-	grpcServer := grpc.NewServer()
-
-	stockGRPCController := &controller.StockGRPCController{
-		StockService: dep.StockService,
-	}
-
-	pb.RegisterStockServerServer(grpcServer, stockGRPCController)
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
-		// Start the gRPC server
-		go func() {
-			if err := grpcServer.Serve(lis); err != nil {
-				log.Fatalf("grpc serve error: %s\n", err)
-			}
-		}()
-		<-ctx.Done() // Wait for the signal from the main context to shut down
-
-		grpcServer.GracefulStop()
-	}()
-
-	log.Printf("grpc running at :%v", app.Config.Const.GRPCPort)
-	return grpcServer
-}
-
-func serveHTTP(ctx context.Context, app *application.App, dep *application.Dependency, wg *sync.WaitGroup) *http.Server {
-	r := chi.NewRouter()
+	httpServer := server.NewServer(app.Context, config)
 
 	trxController := &controller.TransactionController{
 		TransactionFeedService: dep.TransactionFeedService,
 	}
 
-	r.Post("/publish/transaction", trxController.UploadTransactions)
-
-	s := &http.Server{
-		Addr:           fmt.Sprintf(":%v", app.Config.Const.HTTPPort),
-		Handler:        r,
-		ReadTimeout:    time.Duration(app.Config.Const.ShortTimeout) * time.Second,
-		WriteTimeout:   time.Duration(app.Config.Const.ShortTimeout) * time.Second,
-		MaxHeaderBytes: 1 << 20,
+	healthCheckController := &controller.HealthCheckController{
+		HealthCheckService: dep.HealthCheckService,
 	}
+	httpServer.Get("/ping", healthCheckController.Ping)
+	httpServer.Post("/publish/transaction", trxController.UploadTransactions)
 
-	// Increment the WaitGroup counter.
-	wg.Add(1)
-	go func(hs *http.Server) {
-		defer wg.Done()
-
-		// Start the HTTP server
-		go func() {
-			err := hs.ListenAndServe()
-			if err != nil && err != http.ErrServerClosed {
-				log.Fatalf("failed to serve http server: %v", err)
-			}
-		}()
-
-		<-ctx.Done() // Wait for the signal from the main context to shut down
-
-		// Create a shutdown context with a timeout to allow existing connections to finish
-		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-
-		err := hs.Shutdown(shutdownCtx)
-		if err != nil {
-			log.Printf("failed to gracefully shut down http server: %v", err)
-		}
-	}(s)
-
-	return s
+	return httpServer
 }
 
-func consumeKafkaMessages(ctx context.Context, app *application.App, dep *application.Dependency, wg *sync.WaitGroup) {
-	topics := app.Config.Kafka.ConsumerTopics
-	consumerHandler := &controller.ConsumerHandler{
-		TransactionFeed: dep.TransactionFeedService,
+func withTimeout(timeout time.Duration) func(next http.Handler) http.Handler { //nolint
+	if timeout == 0 {
+		timeout = defaultTimeout
 	}
 
-	wg.Add(1)
+	return func(next http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			ctx, cancel := context.WithTimeout(context.Background(), timeout)
+			defer cancel()
 
-	go func(t string, h func([]byte) (bool, error)) {
-		defer wg.Done()
-		log.Printf("creating consumer for topic %s", t)
-		kafkaListener(ctx, app, t, h)
-	}(topics["transaction"], consumerHandler.Transaction)
-}
+			next.ServeHTTP(w, r)
 
-func kafkaListener(ctx context.Context, app *application.App, topic string, messageHandler func([]byte) (bool, error)) {
-	log.Printf("Kafka Listener(%s) START", topic)
-
-loop:
-	for {
-		select {
-		case <-ctx.Done():
-			log.Printf("consumer stop signal %s", topic)
-			break loop
-		default:
-			msg, err := app.Consumer.Consume(ctx, topic)
-			if err != nil {
-				if err == io.EOF || err == context.Canceled {
-					log.Printf("shutting down kafka consumers %s", topic)
-					break loop
-				}
-
-				log.Printf("error when consuming kafka message %s", topic)
-				continue
-			} else if msg.Value == nil {
-				// no message, no error. skip
-				continue
-			}
-			// Process the message.
-			log.Printf("kafka message consumed %s[%d]%d", topic, msg.Partition, msg.Offset)
-
-			if _, err := messageHandler(msg.Value.([]byte)); err != nil {
-				log.Printf("error processing message %s[%d]%d", topic, msg.Partition, msg.Offset)
+			select {
+			case <-ctx.Done():
+				// TODO: if possible, respond with "Timeout" message
+			default:
 			}
 		}
-	}
 
-	_ = app.Consumer.Close()
-	log.Printf("Listener (%s) STOP", topic)
+		return http.HandlerFunc(fn)
+	}
 }
+
+// TODO: Uncomment if you want to use Kafka
+//func consumeKafkaMessages(ctx context.Context, app *application.App, dep *application.Dependency, wg *sync.WaitGroup) {
+//	topics := app.Config.Kafka.ConsumerTopics
+//	consumerHandler := &controller.ConsumerHandler{
+//		TransactionFeed: dep.TransactionFeedService,
+//	}
+//
+//	wg.Add(1)
+//
+//	go func(t string, h func([]byte) (bool, error)) {
+//		defer wg.Done()
+//		log.Printf("creating consumer for topic %s", t)
+//		kafkaListener(ctx, app, t, h)
+//	}(topics["transaction"], consumerHandler.Transaction)
+//}
+
+//func kafkaListener(ctx context.Context, app *application.App, topic string, messageHandler func([]byte) (bool, error)) {
+//	log.Printf("Kafka Listener(%s) START", topic)
+//
+//loop:
+//	for {
+//		select {
+//		case <-ctx.Done():
+//			log.Printf("consumer stop signal %s", topic)
+//			break loop
+//		default:
+//			msg, err := app.Consumer.Consume(ctx, topic)
+//			if err != nil {
+//				if err == io.EOF || err == context.Canceled {
+//					log.Printf("shutting down kafka consumers %s", topic)
+//					break loop
+//				}
+//
+//				log.Printf("error when consuming kafka message %s", topic)
+//				continue
+//			} else if msg.Value == nil {
+//				// no message, no error. skip
+//				continue
+//			}
+//			// Process the message.
+//			log.Printf("kafka message consumed %s[%d]%d", topic, msg.Partition, msg.Offset)
+//
+//			if _, err := messageHandler(msg.Value.([]byte)); err != nil {
+//				log.Printf("error processing message %s[%d]%d", topic, msg.Partition, msg.Offset)
+//			}
+//		}
+//	}
+//
+//	_ = app.Consumer.Close()
+//	log.Printf("Listener (%s) STOP", topic)
+//}

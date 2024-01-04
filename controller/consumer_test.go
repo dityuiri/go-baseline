@@ -8,8 +8,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	serviceMock "stockbit-challenge/mock/service"
-	"stockbit-challenge/model"
+	serviceMock "github.com/dityuiri/go-baseline/mock/service"
+	"github.com/dityuiri/go-baseline/model"
 )
 
 var _ = Describe("Consumer Handler", func() {

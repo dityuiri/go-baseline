@@ -5,16 +5,17 @@ import (
 
 	"github.com/spf13/viper"
 
-	"stockbit-challenge/adapter/kafka/consumer"
-	"stockbit-challenge/adapter/kafka/producer"
-	"stockbit-challenge/adapter/redis"
+	"github.com/dityuiri/go-baseline/adapter/kafka/consumer"
+	"github.com/dityuiri/go-baseline/adapter/kafka/producer"
+	"github.com/dityuiri/go-baseline/adapter/redis"
 )
 
 type (
 	Configuration struct {
-		Const *Constants
-		Kafka *Kafka
-		Redis *redis.Config
+		AppName string
+		Const   *Constants
+		Kafka   *Kafka
+		Redis   *redis.Config
 	}
 
 	Kafka struct {
@@ -35,9 +36,10 @@ func LoadConfiguration() *Configuration {
 	// Initialize viper
 	viper.AutomaticEnv()
 	return &Configuration{
-		Const: loadConstants(),
-		Redis: redis.NewConfig(),
-		Kafka: loadKafkaConfig(),
+		AppName: viper.GetString("APP_NAME"),
+		Const:   loadConstants(),
+		Redis:   redis.NewConfig(),
+		Kafka:   loadKafkaConfig(),
 	}
 }
 

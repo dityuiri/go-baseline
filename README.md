@@ -1,26 +1,6 @@
-# OHLC with Volume & Value (Stockbit Challenge)
+# Go-Baseline
 ## About the Service
-1. This is a project for Stockbit's Go Take Home Challenge. 
-2. Running based on environment variables
-3. It has several functions:
-   1. HTTP Server running on :8080 to serve `POST /publish/transaction` to populate accepted `.ndjson` file
-   2. Kafka for Stockbit's Transaction 
-      1. Produce Transaction
-      2. Consume Transaction -> Save Stock Summary to Redis
-   3. GRPC Server running on :50051 to server `GetSummary` for getting summary info of a stock based on code
-      1. GRPC client file to test provided under `grpc-client` directory
-4. Documentation like System General Flow and Use Case Diagram can be found under `/documentation` directory
-
-### Assumptions
-1. "A" type transaction only be calculated for Previous Price when the Quantity = 0
-2. NTransaction won't be calculated (meaning it will be skipped) if it's not started with Previous Price
-3. Systemic error during process of TransactionRecorded will send the transaction to DLQ in Kafka for later ops
-4. If values isn't available it will be omitted from the result in the grpc result
-5. Open Price can be the same with Close Price since it's possible there is no next transaction again after the first one
-
-### Preparations
-1. Make sure your redis already running on port 6379 and please adjust the config on `/config/local.env`
-2. Make sure your kafka already running on port 9092 and please adjust the config on `/config/local.env`
+TBA
 
 ## Setting Up and Run
 1. Set up local environment variables and run locally (based on `/config/local.env`)
@@ -49,16 +29,4 @@
     or run on docker container
    ```sh
    $ docker compose up
-   ```
-2. Request to POST API `POST /publish/transaction with your file
-   ```sh
-   $ curl --request POST \
-   --url http://localhost:8080/publish/transaction \
-   --header 'Content-Type: multipart/form-data' \
-   --form file=@/stockbit-challenge/test.ndjson
-   ```
-3. Wait the process until all transactions consumed by the service
-4. Check the stock summary by hitting the GRPC `GetSummary`. By running this on your local
-   ```sh
-   $ go run grpc-client/main.go (your stock code)
    ```

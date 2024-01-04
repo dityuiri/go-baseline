@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"stockbit-challenge/adapter/kafka"
-	"stockbit-challenge/adapter/kafka/producer"
-	"stockbit-challenge/config"
-	"stockbit-challenge/model"
+	"github.com/dityuiri/go-baseline/adapter/kafka"
+	"github.com/dityuiri/go-baseline/adapter/kafka/producer"
+	"github.com/dityuiri/go-baseline/config"
+	"github.com/dityuiri/go-baseline/model"
 )
 
 //go:generate mockgen -package=repository_mock -destination=../mock/repository/transaction_producer.go . ITransactionProducer

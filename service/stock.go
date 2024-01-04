@@ -1,8 +1,8 @@
 package service
 
 import (
-	"stockbit-challenge/model"
-	"stockbit-challenge/repository"
+	"github.com/dityuiri/go-baseline/model"
+	"github.com/dityuiri/go-baseline/repository"
 )
 
 //go:generate mockgen -package=service_mock -destination=../mock/service/stock.go . IStockService

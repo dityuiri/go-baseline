@@ -10,6 +10,8 @@ import (
 	"github.com/go-redis/redis"
 )
 
+//go:generate mockgen -destination=mock/redis.go -package=mock . IRedis
+
 type (
 	IRedis interface {
 		Status() map[string]interface{}

@@ -15,7 +15,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
 
-	serviceMock "stockbit-challenge/mock/service"
+	serviceMock "github.com/dityuiri/go-baseline/mock/service"
 )
 
 var _ = Describe("TransactionController", func() {

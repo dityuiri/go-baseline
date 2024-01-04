@@ -3,8 +3,8 @@ package controller
 import (
 	"encoding/json"
 
-	"stockbit-challenge/model"
-	"stockbit-challenge/service"
+	"github.com/dityuiri/go-baseline/model"
+	"github.com/dityuiri/go-baseline/service"
 )
 
 type ConsumerHandler struct {

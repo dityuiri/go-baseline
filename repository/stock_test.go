@@ -8,8 +8,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"stockbit-challenge/adapter/redis/mock"
-	"stockbit-challenge/model"
+	"go-baseline/adapter/redis/mock"
+	"go-baseline/model"
 )
 
 var _ = Describe("StockRepository", func() {

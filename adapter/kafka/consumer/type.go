@@ -2,7 +2,8 @@ package consumer
 
 import (
 	"context"
-	"stockbit-challenge/adapter/kafka"
+
+	"github.com/dityuiri/go-baseline/adapter/kafka"
 )
 
 //go:generate mockgen -destination=mock/consumer.go -package=mock . IConsumer

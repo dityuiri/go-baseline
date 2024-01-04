@@ -7,8 +7,8 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	repositoryMock "stockbit-challenge/mock/repository"
-	"stockbit-challenge/model"
+	repositoryMock "github.com/dityuiri/go-baseline/mock/repository"
+	"github.com/dityuiri/go-baseline/model"
 )
 
 var _ = Describe("StockService", func() {

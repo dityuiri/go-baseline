@@ -8,9 +8,9 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	mock2 "stockbit-challenge/adapter/kafka/producer/mock"
-	"stockbit-challenge/config"
-	"stockbit-challenge/model"
+	mock2 "github.com/dityuiri/go-baseline/adapter/kafka/producer/mock"
+	"github.com/dityuiri/go-baseline/config"
+	"github.com/dityuiri/go-baseline/model"
 )
 
 var _ = Describe("TransactionProducer", func() {
