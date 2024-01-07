@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/viper"
 
+	"github.com/dityuiri/go-baseline/adapter/db"
 	"github.com/dityuiri/go-baseline/adapter/kafka/consumer"
 	"github.com/dityuiri/go-baseline/adapter/kafka/producer"
 	"github.com/dityuiri/go-baseline/adapter/redis"
@@ -12,10 +13,11 @@ import (
 
 type (
 	Configuration struct {
-		AppName string
-		Const   *Constants
-		Kafka   *Kafka
-		Redis   *redis.Config
+		AppName  string
+		Const    *Constants
+		Kafka    *Kafka
+		Redis    *redis.Config
+		Database *db.Configuration
 	}
 
 	Kafka struct {
@@ -36,10 +38,11 @@ func LoadConfiguration() *Configuration {
 	// Initialize viper
 	viper.AutomaticEnv()
 	return &Configuration{
-		AppName: viper.GetString("APP_NAME"),
-		Const:   loadConstants(),
-		Redis:   redis.NewConfig(),
-		Kafka:   loadKafkaConfig(),
+		AppName:  viper.GetString("APP_NAME"),
+		Const:    loadConstants(),
+		Redis:    redis.NewConfig(),
+		Kafka:    loadKafkaConfig(),
+		Database: loadDatabaseConfig(),
 	}
 }
 
@@ -89,4 +92,8 @@ func loadKafkaConfig() *Kafka {
 		},
 		ProducerTopics: mappedProducerTopics,
 	}
+}
+
+func loadDatabaseConfig() *db.Configuration {
+	return db.NewConfig()
 }

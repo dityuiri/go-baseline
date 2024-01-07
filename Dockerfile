@@ -15,7 +15,7 @@ RUN go mod download
 # Build the application
 RUN go build -o main .
 
-# Expose ports for HTTP and gRPC
-EXPOSE 8080 50051
+# Expose ports for HTTP
+EXPOSE 8080
 
 CMD ["/app/main"]

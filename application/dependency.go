@@ -10,6 +10,7 @@ type Dependency struct {
 	TransactionFeedService service.ITransactionFeedService
 	StockService           service.IStockService
 	HealthCheckService     service.IHealthCheckService
+	PlaceholderService     service.IPlaceholderService
 }
 
 func SetupDependency(app *App) *Dependency {
@@ -22,6 +23,11 @@ func SetupDependency(app *App) *Dependency {
 	trxProducer := &repository.TransactionProducer{
 		Producer:    producer.NewProducer(app.Config.Kafka.Producer),
 		KafkaConfig: app.Config.Kafka,
+	}
+
+	placeholderRepo := &repository.PlaceholderRepository{
+		Logger: app.Logger,
+		DB:     app.DB,
 	}
 
 	trxFeedService := &service.TransactionFeedService{
@@ -37,9 +43,15 @@ func SetupDependency(app *App) *Dependency {
 		HealthCheckRepo: healthCheckRepo,
 	}
 
+	placeholderService := &service.PlaceholderService{
+		Logger:                app.Logger,
+		PlaceholderRepository: placeholderRepo,
+	}
+
 	return &Dependency{
 		TransactionFeedService: trxFeedService,
 		StockService:           stockService,
 		HealthCheckService:     healthCheckService,
+		PlaceholderService:     placeholderService,
 	}
 }

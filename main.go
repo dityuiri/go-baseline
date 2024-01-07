@@ -35,7 +35,12 @@ func main() {
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
-	app := application.SetupApplication(ctx)
+	app, err := application.SetupApplication(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	defer app.Close()
 
 	// Setup dependency injection
 	dep := application.SetupDependency(app)
