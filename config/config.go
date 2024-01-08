@@ -18,6 +18,7 @@ type (
 		Kafka    *Kafka
 		Redis    *redis.Config
 		Database *db.Configuration
+		HTTPClient *client.Configuration
 	}
 
 	Kafka struct {
@@ -31,6 +32,12 @@ type (
 		GRPCPort     int
 		HTTPPort     int
 		ShortTimeout int
+		Proxy        Proxy
+	}
+
+	Proxy struct {
+	    AlphaURL                            string
+	    AlphaGetPlaceholderStatusEndpoint   string
 	}
 )
 
@@ -43,6 +50,7 @@ func LoadConfiguration() *Configuration {
 		Redis:    redis.NewConfig(),
 		Kafka:    loadKafkaConfig(),
 		Database: loadDatabaseConfig(),
+		HTTPClient: loadHTTPClientConfig(),
 	}
 }
 
@@ -51,6 +59,7 @@ func loadConstants() *Constants {
 		GRPCPort:     viper.GetInt("GRPC_PORT"),
 		HTTPPort:     viper.GetInt("HTTP_PORT"),
 		ShortTimeout: viper.GetInt("SHORT_TIMEOUT"),
+		Proxy:        loadProxyConfig(),
 	}
 }
 
@@ -96,4 +105,15 @@ func loadKafkaConfig() *Kafka {
 
 func loadDatabaseConfig() *db.Configuration {
 	return db.NewConfig()
+}
+
+func loadHTTPClientConfig() *client.Configuration{
+    return client.NewConfig()
+}
+
+func loadProxyConfig() proxy {
+    return Proxy{
+        AlphaURL:                               viper.GetString("ALPHA_URL"),
+        AlphaGetPlaceholderStatusEndpoint:      viper.GetString("ALPHA_GET_PLACEHOLDER_STATUS_ENDPOINT"),
+    }
 }

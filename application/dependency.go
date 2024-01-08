@@ -4,6 +4,7 @@ import (
 	"github.com/dityuiri/go-baseline/adapter/kafka/producer"
 	"github.com/dityuiri/go-baseline/repository"
 	"github.com/dityuiri/go-baseline/service"
+	"github.com/dityuiri/go-baseline/adapter/client"
 )
 
 type Dependency struct {
@@ -14,6 +15,7 @@ type Dependency struct {
 }
 
 func SetupDependency(app *App) *Dependency {
+	// Repository and Proxy layer
 	stockRepo := &repository.StockRepository{
 		Redis: app.Redis,
 	}
@@ -30,6 +32,19 @@ func SetupDependency(app *App) *Dependency {
 		DB:     app.DB,
 	}
 
+	placeholderCache := &repository.PlaceholderCache{
+	    Redis: app.Redis,
+	    Logger: app.Logger,
+	}
+
+	alphaProxy := &repository.AlphaProxy{
+	    Logger: app.Logger,
+	    HTTPClient: client.NewClient(app.Context, app.Config.HTTPClient)
+	    Config: app.Config,
+	}
+
+	// Service layer
+
 	trxFeedService := &service.TransactionFeedService{
 		StockRepository:     stockRepo,
 		TransactionProducer: trxProducer,
@@ -44,8 +59,10 @@ func SetupDependency(app *App) *Dependency {
 	}
 
 	placeholderService := &service.PlaceholderService{
-		Logger:                app.Logger,
-		PlaceholderRepository: placeholderRepo,
+		Logger:                 app.Logger,
+		PlaceholderRepository:  placeholderRepo,
+		PlaceholderCache:       placeholderCache,
+		AlphaProxy:             alphaProxy,
 	}
 
 	return &Dependency{

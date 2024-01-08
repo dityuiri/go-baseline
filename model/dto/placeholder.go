@@ -21,10 +21,18 @@ type (
 		Amount int    `json:"amount"`
 	}
 
+	PlaceholderGetResponse struct {
+	    ID        uuid.UUID     `json:"id"`
+        Name      string        `json:"name"`
+        Amount    int           `json:"amount"`
+        Status    string        `json:"status"`
+	}
+
 	PlaceholderDTO struct {
 		ID        uuid.UUID
 		Name      string
 		Amount    int
+		Status    string
 		CreatedAt time.Time
 		CreatedBy string
 		UpdatedAt time.Time
@@ -53,6 +61,14 @@ func (pDTO *PlaceholderDTO) ToPlaceholderDAO() dao.PlaceholderDAO {
 
 func (pDTO *PlaceholderDTO) ToPlaceholderCreateResponse() PlaceholderCreateResponse {
 	return PlaceholderCreateResponse{
+		ID:     pDTO.ID.String(),
+		Name:   pDTO.Name,
+		Amount: pDTO.Amount,
+	}
+}
+
+func (pDTO *PlaceholderDTO) ToPlaceholderGetResponse() PlaceholderGetResponse {
+	return PlaceholderGetResponse{
 		ID:     pDTO.ID.String(),
 		Name:   pDTO.Name,
 		Amount: pDTO.Amount,
