@@ -1,12 +1,10 @@
-package dto
+package model
 
 import (
 	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
-
-	"github.com/dityuiri/go-baseline/model/dao"
 )
 
 type (
@@ -22,10 +20,10 @@ type (
 	}
 
 	PlaceholderGetResponse struct {
-	    ID        uuid.UUID     `json:"id"`
-        Name      string        `json:"name"`
-        Amount    int           `json:"amount"`
-        Status    string        `json:"status"`
+		ID     string `json:"id"`
+		Name   string `json:"name"`
+		Amount int    `json:"amount"`
+		Status string `json:"status"`
 	}
 
 	PlaceholderDTO struct {
@@ -48,9 +46,9 @@ func (pcr *PlaceholderCreateRequest) ToPlaceholderDTO() PlaceholderDTO {
 	}
 }
 
-func (pDTO *PlaceholderDTO) ToPlaceholderDAO() dao.PlaceholderDAO {
+func (pDTO *PlaceholderDTO) ToPlaceholderDAO() PlaceholderDAO {
 	var (
-		pDAO dao.PlaceholderDAO
+		pDAO PlaceholderDAO
 
 		b, _ = json.Marshal(pDTO)
 		_    = json.Unmarshal(b, &pDAO)
@@ -74,14 +72,3 @@ func (pDTO *PlaceholderDTO) ToPlaceholderGetResponse() PlaceholderGetResponse {
 		Amount: pDTO.Amount,
 	}
 }
-
-//func (pDAO *PlaceholderDAO) ToPlaceholderDTO() dto.PlaceholderDTO {
-//	var (
-//		pDTO dto.PlaceholderDTO
-//
-//		a, _ = json.Marshal(pDAO)
-//		_    = json.Unmarshal(a, &pDTO)
-//	)
-//
-//	return pDTO
-//}

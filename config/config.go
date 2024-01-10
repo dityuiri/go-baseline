@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/viper"
 
+	"github.com/dityuiri/go-baseline/adapter/client"
 	"github.com/dityuiri/go-baseline/adapter/db"
 	"github.com/dityuiri/go-baseline/adapter/kafka/consumer"
 	"github.com/dityuiri/go-baseline/adapter/kafka/producer"
@@ -13,12 +14,12 @@ import (
 
 type (
 	Configuration struct {
-		AppName  string
-		Const    *Constants
-		Kafka    *Kafka
-		Redis    *redis.Config
-		Database *db.Configuration
-		HTTPClient *client.Configuration
+		AppName    string
+		Const      *Constants
+		Kafka      *Kafka
+		Redis      *redis.Config
+		Database   *db.Configuration
+		HTTPClient *HttpClient
 	}
 
 	Kafka struct {
@@ -32,12 +33,15 @@ type (
 		GRPCPort     int
 		HTTPPort     int
 		ShortTimeout int
-		Proxy        Proxy
 	}
 
-	Proxy struct {
-	    AlphaURL                            string
-	    AlphaGetPlaceholderStatusEndpoint   string
+	HttpClient struct {
+		ClientConfig *client.Configuration
+		ProxyURLs    ProxyURLs
+	}
+
+	ProxyURLs struct {
+		AlphaURL string
 	}
 )
 
@@ -45,11 +49,11 @@ func LoadConfiguration() *Configuration {
 	// Initialize viper
 	viper.AutomaticEnv()
 	return &Configuration{
-		AppName:  viper.GetString("APP_NAME"),
-		Const:    loadConstants(),
-		Redis:    redis.NewConfig(),
-		Kafka:    loadKafkaConfig(),
-		Database: loadDatabaseConfig(),
+		AppName:    viper.GetString("APP_NAME"),
+		Const:      loadConstants(),
+		Redis:      redis.NewConfig(),
+		Kafka:      loadKafkaConfig(),
+		Database:   loadDatabaseConfig(),
 		HTTPClient: loadHTTPClientConfig(),
 	}
 }
@@ -59,7 +63,6 @@ func loadConstants() *Constants {
 		GRPCPort:     viper.GetInt("GRPC_PORT"),
 		HTTPPort:     viper.GetInt("HTTP_PORT"),
 		ShortTimeout: viper.GetInt("SHORT_TIMEOUT"),
-		Proxy:        loadProxyConfig(),
 	}
 }
 
@@ -107,13 +110,11 @@ func loadDatabaseConfig() *db.Configuration {
 	return db.NewConfig()
 }
 
-func loadHTTPClientConfig() *client.Configuration{
-    return client.NewConfig()
-}
-
-func loadProxyConfig() proxy {
-    return Proxy{
-        AlphaURL:                               viper.GetString("ALPHA_URL"),
-        AlphaGetPlaceholderStatusEndpoint:      viper.GetString("ALPHA_GET_PLACEHOLDER_STATUS_ENDPOINT"),
-    }
+func loadHTTPClientConfig() *HttpClient {
+	return &HttpClient{
+		ClientConfig: client.NewConfig(),
+		ProxyURLs: ProxyURLs{
+			AlphaURL: viper.GetString("ALPHA_URL"),
+		},
+	}
 }

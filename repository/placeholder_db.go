@@ -2,17 +2,19 @@ package repository
 
 import (
 	"context"
+	"github.com/dityuiri/go-baseline/model"
 
 	"github.com/dityuiri/go-baseline/adapter/db"
 	"github.com/dityuiri/go-baseline/adapter/logger"
-	"github.com/dityuiri/go-baseline/model/dao"
 )
+
+//go:generate mockgen -package=repository_mock -destination=../mock/repository/placeholder_db.go . IPlaceholderRepository
 
 type (
 	IPlaceholderRepository interface {
-		GetSinglePlaceholder(ctx context.Context, placeholderID string) (dao.PlaceholderDAO, error)
-		InsertPlaceholder(ctx context.Context, tx db.ITransaction, placeholder dao.PlaceholderDAO) error
-		UpdatePlaceholder(ctx context.Context, tx db.ITransaction, placeholder dao.PlaceholderDAO) error
+		GetSinglePlaceholder(ctx context.Context, placeholderID string) (model.PlaceholderDAO, error)
+		InsertPlaceholder(ctx context.Context, tx db.ITransaction, placeholder model.PlaceholderDAO) error
+		UpdatePlaceholder(ctx context.Context, tx db.ITransaction, placeholder model.PlaceholderDAO) error
 	}
 
 	PlaceholderRepository struct {
@@ -21,17 +23,17 @@ type (
 	}
 )
 
-func (pr *PlaceholderRepository) GetSinglePlaceholder(ctx context.Context, placeholderID string) (dao.PlaceholderDAO, error) {
+func (pr *PlaceholderRepository) GetSinglePlaceholder(ctx context.Context, placeholderID string) (model.PlaceholderDAO, error) {
 	// Your implementation goes here
-	return dao.PlaceholderDAO{}, nil
+	return model.PlaceholderDAO{}, nil
 }
 
-func (pr *PlaceholderRepository) InsertPlaceholder(ctx context.Context, tx db.ITransaction, placeholder dao.PlaceholderDAO) error {
+func (pr *PlaceholderRepository) InsertPlaceholder(ctx context.Context, tx db.ITransaction, placeholder model.PlaceholderDAO) error {
 	// Your implementation goes here
 	return nil
 }
 
-func (pr *PlaceholderRepository) UpdatePlaceholder(ctx context.Context, tx db.ITransaction, placeholder dao.PlaceholderDAO) error {
+func (pr *PlaceholderRepository) UpdatePlaceholder(ctx context.Context, tx db.ITransaction, placeholder model.PlaceholderDAO) error {
 	// Your implementation goes here
 	return nil
 }

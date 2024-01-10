@@ -10,6 +10,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/go-chi/chi"
+
 	"github.com/dityuiri/go-baseline/adapter/server"
 	"github.com/dityuiri/go-baseline/application"
 	"github.com/dityuiri/go-baseline/controller"
@@ -84,6 +86,8 @@ func main() {
 }
 
 func serveHTTP(app *application.App, dep *application.Dependency) server.IServer {
+	var shortTimeout = time.Duration(app.Config.Const.ShortTimeout) * time.Second
+
 	config := &server.Configuration{
 		AppName: app.Config.AppName,
 		Port:    app.Config.Const.HTTPPort,
@@ -91,16 +95,24 @@ func serveHTTP(app *application.App, dep *application.Dependency) server.IServer
 
 	httpServer := server.NewServer(app.Context, config)
 
-	trxController := &controller.TransactionController{
-		TransactionFeedService: dep.TransactionFeedService,
-	}
-
 	healthCheckController := &controller.HealthCheckController{
 		HealthCheckService: dep.HealthCheckService,
 	}
-	httpServer.Get("/ping", healthCheckController.Ping)
-	httpServer.Post("/publish/transaction", trxController.UploadTransactions)
 
+	placeholderController := &controller.PlaceholderController{
+		Logger:             app.Logger,
+		PlaceholderService: dep.PlaceholderService,
+	}
+
+	// Endpoint Routing
+	httpServer.Get("/ping", healthCheckController.Ping)
+
+	httpServer.GetRouter().Route("/v1", func(r chi.Router) {
+		r.With(withTimeout(shortTimeout)).Route("/placeholder", func(r chi.Router) {
+			r.Get("/", placeholderController.GetPlaceholder)
+			r.Post("/", placeholderController.CreatePlaceholder)
+		})
+	})
 	return httpServer
 }
 
