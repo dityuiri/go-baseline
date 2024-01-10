@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"runtime"
+	"sync"
 	"syscall"
 	"time"
 
@@ -19,6 +21,8 @@ import (
 
 const (
 	clientMode = "client"
+
+	// Uncomment if you want to use kafka consumer
 	// consumerMode = "consumer"
 
 	defaultTimeout = 5 * time.Second
@@ -67,8 +71,11 @@ func main() {
 
 		<-app.Context.Done()
 		_ = httpServer.Close()
+
+	// Uncomment if you want to use kafka consumer
 	//case consumerMode:
 	//	consumeKafkaMessages(app, dep)
+
 	default: // All services run in this mode as default
 		var (
 			httpServer = serveHTTP(app, dep)
@@ -78,6 +85,7 @@ func main() {
 			panic(err)
 		}
 
+		// Uncomment if you want to use kafka consumer
 		//consumeKafkaMessages(app, dep)
 
 		<-app.Context.Done()
@@ -139,54 +147,53 @@ func withTimeout(timeout time.Duration) func(next http.Handler) http.Handler { /
 	}
 }
 
-// TODO: Uncomment if you want to use Kafka
-//func consumeKafkaMessages(ctx context.Context, app *application.App, dep *application.Dependency, wg *sync.WaitGroup) {
-//	topics := app.Config.Kafka.ConsumerTopics
-//	consumerHandler := &controller.ConsumerHandler{
-//		TransactionFeed: dep.TransactionFeedService,
-//	}
-//
-//	wg.Add(1)
-//
-//	go func(t string, h func([]byte) (bool, error)) {
-//		defer wg.Done()
-//		log.Printf("creating consumer for topic %s", t)
-//		kafkaListener(ctx, app, t, h)
-//	}(topics["transaction"], consumerHandler.Transaction)
-//}
+func consumeKafkaMessages(ctx context.Context, app *application.App, dep *application.Dependency, wg *sync.WaitGroup) {
+	topics := app.Config.Kafka.ConsumerTopics
+	consumerHandler := &controller.ConsumerHandler{
+		PlaceholderFeedService: dep.PlaceholderFeedService,
+	}
 
-//func kafkaListener(ctx context.Context, app *application.App, topic string, messageHandler func([]byte) (bool, error)) {
-//	log.Printf("Kafka Listener(%s) START", topic)
-//
-//loop:
-//	for {
-//		select {
-//		case <-ctx.Done():
-//			log.Printf("consumer stop signal %s", topic)
-//			break loop
-//		default:
-//			msg, err := app.Consumer.Consume(ctx, topic)
-//			if err != nil {
-//				if err == io.EOF || err == context.Canceled {
-//					log.Printf("shutting down kafka consumers %s", topic)
-//					break loop
-//				}
-//
-//				log.Printf("error when consuming kafka message %s", topic)
-//				continue
-//			} else if msg.Value == nil {
-//				// no message, no error. skip
-//				continue
-//			}
-//			// Process the message.
-//			log.Printf("kafka message consumed %s[%d]%d", topic, msg.Partition, msg.Offset)
-//
-//			if _, err := messageHandler(msg.Value.([]byte)); err != nil {
-//				log.Printf("error processing message %s[%d]%d", topic, msg.Partition, msg.Offset)
-//			}
-//		}
-//	}
-//
-//	_ = app.Consumer.Close()
-//	log.Printf("Listener (%s) STOP", topic)
-//}
+	wg.Add(1)
+
+	go func(t string, h func([]byte) (bool, error)) {
+		defer wg.Done()
+		log.Printf("creating consumer for topic %s", t)
+		kafkaListener(ctx, app, t, h)
+	}(topics["placeholder"], consumerHandler.Placeholder)
+}
+
+func kafkaListener(ctx context.Context, app *application.App, topic string, messageHandler func([]byte) (bool, error)) {
+	log.Printf("Kafka Listener(%s) START", topic)
+
+loop:
+	for {
+		select {
+		case <-ctx.Done():
+			log.Printf("consumer stop signal %s", topic)
+			break loop
+		default:
+			msg, err := app.Consumer.Consume(ctx, topic)
+			if err != nil {
+				if err == io.EOF || err == context.Canceled {
+					log.Printf("shutting down kafka consumers %s", topic)
+					break loop
+				}
+
+				log.Printf("error when consuming kafka message %s", topic)
+				continue
+			} else if msg.Value == nil {
+				// no message, no error. skip
+				continue
+			}
+			// Process the message.
+			log.Printf("kafka message consumed %s[%d]%d", topic, msg.Partition, msg.Offset)
+
+			if _, err := messageHandler(msg.Value.([]byte)); err != nil {
+				log.Printf("error processing message %s[%d]%d", topic, msg.Partition, msg.Offset)
+			}
+		}
+	}
+
+	_ = app.Consumer.Close()
+	log.Printf("Listener (%s) STOP", topic)
+}
