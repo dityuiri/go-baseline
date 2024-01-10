@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/viper"
 
+	"github.com/dityuiri/go-baseline/adapter/client"
 	"github.com/dityuiri/go-baseline/adapter/db"
 	"github.com/dityuiri/go-baseline/adapter/kafka/consumer"
 	"github.com/dityuiri/go-baseline/adapter/kafka/producer"
@@ -13,11 +14,12 @@ import (
 
 type (
 	Configuration struct {
-		AppName  string
-		Const    *Constants
-		Kafka    *Kafka
-		Redis    *redis.Config
-		Database *db.Configuration
+		AppName    string
+		Const      *Constants
+		Kafka      *Kafka
+		Redis      *redis.Config
+		Database   *db.Configuration
+		HTTPClient *HttpClient
 	}
 
 	Kafka struct {
@@ -32,17 +34,27 @@ type (
 		HTTPPort     int
 		ShortTimeout int
 	}
+
+	HttpClient struct {
+		ClientConfig *client.Configuration
+		ProxyURLs    ProxyURLs
+	}
+
+	ProxyURLs struct {
+		AlphaURL string
+	}
 )
 
 func LoadConfiguration() *Configuration {
 	// Initialize viper
 	viper.AutomaticEnv()
 	return &Configuration{
-		AppName:  viper.GetString("APP_NAME"),
-		Const:    loadConstants(),
-		Redis:    redis.NewConfig(),
-		Kafka:    loadKafkaConfig(),
-		Database: loadDatabaseConfig(),
+		AppName:    viper.GetString("APP_NAME"),
+		Const:      loadConstants(),
+		Redis:      redis.NewConfig(),
+		Kafka:      loadKafkaConfig(),
+		Database:   loadDatabaseConfig(),
+		HTTPClient: loadHTTPClientConfig(),
 	}
 }
 
@@ -96,4 +108,13 @@ func loadKafkaConfig() *Kafka {
 
 func loadDatabaseConfig() *db.Configuration {
 	return db.NewConfig()
+}
+
+func loadHTTPClientConfig() *HttpClient {
+	return &HttpClient{
+		ClientConfig: client.NewConfig(),
+		ProxyURLs: ProxyURLs{
+			AlphaURL: viper.GetString("ALPHA_URL"),
+		},
+	}
 }

@@ -1,26 +1,28 @@
 package application
 
 import (
+	"github.com/dityuiri/go-baseline/adapter/client"
 	"github.com/dityuiri/go-baseline/adapter/kafka/producer"
+	"github.com/dityuiri/go-baseline/proxy"
 	"github.com/dityuiri/go-baseline/repository"
 	"github.com/dityuiri/go-baseline/service"
 )
 
 type Dependency struct {
-	TransactionFeedService service.ITransactionFeedService
-	StockService           service.IStockService
 	HealthCheckService     service.IHealthCheckService
 	PlaceholderService     service.IPlaceholderService
+	PlaceholderFeedService service.IPlaceholderFeedService
 }
 
 func SetupDependency(app *App) *Dependency {
-	stockRepo := &repository.StockRepository{
-		Redis: app.Redis,
-	}
-
+	// Repository and Proxy layer
 	healthCheckRepo := &repository.HealthCheckRepository{}
+	//trxProducer := &repository.TransactionProducer{
+	//	Producer:    producer.NewProducer(app.Config.Kafka.Producer),
+	//	KafkaConfig: app.Config.Kafka,
+	//}
 
-	trxProducer := &repository.TransactionProducer{
+	placeholderProducer := &repository.PlaceholderProducer{
 		Producer:    producer.NewProducer(app.Config.Kafka.Producer),
 		KafkaConfig: app.Config.Kafka,
 	}
@@ -30,14 +32,17 @@ func SetupDependency(app *App) *Dependency {
 		DB:     app.DB,
 	}
 
-	trxFeedService := &service.TransactionFeedService{
-		StockRepository:     stockRepo,
-		TransactionProducer: trxProducer,
+	placeholderCache := &repository.PlaceholderCache{
+		Redis:  app.Redis,
+		Logger: app.Logger,
 	}
 
-	stockService := &service.StockService{
-		StockRepository: stockRepo,
+	alphaProxy := &proxy.AlphaProxy{
+		Logger:     app.Logger,
+		HTTPClient: client.NewClient(app.Context, app.Config.HTTPClient.ClientConfig),
 	}
+
+	// Service layer
 
 	healthCheckService := &service.HealthCheckService{
 		HealthCheckRepo: healthCheckRepo,
@@ -46,12 +51,18 @@ func SetupDependency(app *App) *Dependency {
 	placeholderService := &service.PlaceholderService{
 		Logger:                app.Logger,
 		PlaceholderRepository: placeholderRepo,
+		PlaceholderCache:      placeholderCache,
+		AlphaProxy:            alphaProxy,
+	}
+
+	placeholderFeedService := &service.PlaceholderFeedService{
+		Logger:              app.Logger,
+		PlaceholderProducer: placeholderProducer,
 	}
 
 	return &Dependency{
-		TransactionFeedService: trxFeedService,
-		StockService:           stockService,
 		HealthCheckService:     healthCheckService,
 		PlaceholderService:     placeholderService,
+		PlaceholderFeedService: placeholderFeedService,
 	}
 }

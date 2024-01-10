@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/dityuiri/go-baseline/adapter/logger"
+	"github.com/dityuiri/go-baseline/common/util"
 	"github.com/dityuiri/go-baseline/service"
 )
 
@@ -21,15 +21,7 @@ type (
 	}
 )
 
-func writeResponse(w http.ResponseWriter, body interface{}, status int) {
-	resp, _ := json.Marshal(body)
-
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(status)
-	_, _ = w.Write(resp)
-}
-
 // Ping is a controller function to health check the app.
 func (c *HealthCheckController) Ping(w http.ResponseWriter, r *http.Request) {
-	writeResponse(w, c.HealthCheckService.Ping(), http.StatusOK)
+	util.WriteResponse(w, c.HealthCheckService.Ping(), http.StatusOK)
 }

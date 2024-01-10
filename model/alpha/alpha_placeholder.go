@@ -2,8 +2,8 @@ package alpha
 
 type (
 	AlphaRequest struct {
-		ID     string `json:"id"`
-		Amount int    `json:"amount"`
+		PlaceholderID string `json:"placeholder_id"`
+		Amount        int    `json:"amount"`
 	}
 
 	AlphaResponse struct {

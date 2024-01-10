@@ -18,4 +18,5 @@ RUN go build -o main .
 # Expose ports for HTTP
 EXPOSE 8080
 
+ENTRYPOINT [ "./entrypoint.sh" ]
 CMD ["/app/main"]

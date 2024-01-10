@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/dityuiri/go-baseline/model"
@@ -8,16 +9,19 @@ import (
 )
 
 type ConsumerHandler struct {
-	TransactionFeed service.ITransactionFeedService
+	PlaceholderFeedService service.IPlaceholderFeedService
 }
 
-func (ch *ConsumerHandler) Transaction(msg []byte) (bool, error) {
-	var transaction = &model.Transaction{}
+func (ch *ConsumerHandler) Placeholder(msg []byte) (bool, error) {
+	var (
+		ctx         = context.Background()
+		placeholder = &model.PlaceholderMessage{}
+	)
 
-	err := json.Unmarshal(msg, transaction)
+	err := json.Unmarshal(msg, placeholder)
 	if err != nil {
 		return true, err
 	}
 
-	return ch.TransactionFeed.TransactionRecorded(transaction)
+	return ch.PlaceholderFeedService.PlaceholderRecorded(ctx, *placeholder)
 }

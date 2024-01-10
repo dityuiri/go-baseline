@@ -5,7 +5,6 @@ services:
     build: .
     ports:
       - "8080:8080"
-      - "50051:50051"
     environment:
       - REDIS_HOST=host.docker.internal
       - REDIS_PORT=6379
@@ -13,8 +12,16 @@ services:
       - REDIS_PASSWORD=
       - KAFKA_BROKERS=host.docker.internal:9092
       - KAFKA_GROUP_ID=dt-local
-      - PRODUCER_TOPICS="transaction_dlq:dt-transaction_dlq;transaction:dt-transaction"
-      - CONSUMER_TOPICS="transaction:dt-transaction"
+      - PRODUCER_TOPICS="placeholder_dlq:placeholder_dlq;placeholder:placeholder"
+      - CONSUMER_TOPICS="placeholder:placeholder-record"
       - HTTP_PORT=8080
       - SHORT_TIMEOUT=10
-      - GRPC_PORT=50051
+      - ALPHA_URL=host.docker.internal:8700
+      - DB_HOST=host.docker.internal
+      - DB_PORT=5432
+      - DB_USER=username
+      - DB_PASSWORD=password1234
+      - DB_NAME=placeholder
+      - DB_SCHEMA=placeholder
+      - DB_DRIVER=postgres
+      - DB_SSL_MODE=disable

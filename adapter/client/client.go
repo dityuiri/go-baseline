@@ -24,7 +24,7 @@ const (
 	// RequestIDHeaderName is a key used to get `X-Request-Id` from request header
 	RequestIDHeaderName = "X-Request-Id"
 
-	spanTitle = "Mapan_HTTP_Client"
+	spanTitle = "HTTP_Client"
 )
 
 func NewClient(ctx context.Context, config *Configuration, opts ...Option) IClient {

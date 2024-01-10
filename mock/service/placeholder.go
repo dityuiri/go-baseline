@@ -6,9 +6,9 @@ package service_mock
 
 import (
 	context "context"
+	dto "github.com/dityuiri/go-baseline/model"
 	reflect "reflect"
 
-	dto "github.com/dityuiri/go-baseline/model/dto"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -48,4 +48,19 @@ func (m *MockIPlaceholderService) CreateNewPlaceholder(arg0 context.Context, arg
 func (mr *MockIPlaceholderServiceMockRecorder) CreateNewPlaceholder(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNewPlaceholder", reflect.TypeOf((*MockIPlaceholderService)(nil).CreateNewPlaceholder), arg0, arg1)
+}
+
+// GetPlaceholder mocks base method.
+func (m *MockIPlaceholderService) GetPlaceholder(arg0 context.Context, arg1 string) (dto.PlaceholderGetResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPlaceholder", arg0, arg1)
+	ret0, _ := ret[0].(dto.PlaceholderGetResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPlaceholder indicates an expected call of GetPlaceholder.
+func (mr *MockIPlaceholderServiceMockRecorder) GetPlaceholder(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPlaceholder", reflect.TypeOf((*MockIPlaceholderService)(nil).GetPlaceholder), arg0, arg1)
 }
