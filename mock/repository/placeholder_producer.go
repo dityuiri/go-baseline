@@ -48,17 +48,3 @@ func (mr *MockIPlaceholderProducerMockRecorder) ProducePlaceholderRecord(arg0, a
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProducePlaceholderRecord", reflect.TypeOf((*MockIPlaceholderProducer)(nil).ProducePlaceholderRecord), arg0, arg1)
 }
-
-// ProducePlaceholderRecordDLQ mocks base method.
-func (m *MockIPlaceholderProducer) ProducePlaceholderRecordDLQ(arg0 context.Context, arg1 model.PlaceholderMessage, arg2 error) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ProducePlaceholderRecordDLQ", arg0, arg1, arg2)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// ProducePlaceholderRecordDLQ indicates an expected call of ProducePlaceholderRecordDLQ.
-func (mr *MockIPlaceholderProducerMockRecorder) ProducePlaceholderRecordDLQ(arg0, arg1, arg2 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ProducePlaceholderRecordDLQ", reflect.TypeOf((*MockIPlaceholderProducer)(nil).ProducePlaceholderRecordDLQ), arg0, arg1, arg2)
-}

@@ -16,7 +16,6 @@ import (
 type (
 	IPlaceholderProducer interface {
 		ProducePlaceholderRecord(ctx context.Context, placeholderMsg model.PlaceholderMessage) error
-		ProducePlaceholderRecordDLQ(ctx context.Context, placeholderMsg model.PlaceholderMessage, err error) error
 	}
 
 	PlaceholderProducer struct {
@@ -30,19 +29,13 @@ func (p *PlaceholderProducer) ProducePlaceholderRecord(ctx context.Context, plac
 	return p.Producer.Produce(ctx, p.KafkaConfig.ProducerTopics["placeholder"], msg)
 }
 
-func (p *PlaceholderProducer) ProducePlaceholderRecordDLQ(ctx context.Context, placeholderMsg model.PlaceholderMessage, err error) error {
-	placeholderMsg.Error = err.Error()
-	msg := p.constructMessage(placeholderMsg)
-	return p.Producer.Produce(ctx, p.KafkaConfig.ProducerTopics["placeholder_dlq"], msg)
-}
-
 func (*PlaceholderProducer) constructMessage(placeholderMsg model.PlaceholderMessage) *kafka.Message {
 	var message *kafka.Message
 	data, _ := json.Marshal(placeholderMsg)
 	message = &kafka.Message{
 		Value: data,
 		Headers: map[string][]byte{
-			"message_id": []byte(fmt.Sprintf("%s", placeholderMsg)),
+			"message_id": []byte(fmt.Sprintf("%s", placeholderMsg.ID)),
 		},
 	}
 

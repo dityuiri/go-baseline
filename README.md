@@ -10,24 +10,34 @@ This is a go-baseline project that aims as a starting line for Go project. The c
 go-baseline
 | adapter
   <Implementation of frameworks & drivers layer such as DB, HTTP Client, HTTP Server, Logger etc.>
+  
 | application
   <App starter and dependency injector>
+  
 | common
   <Shared functions and variables like constant, utility function, error code etc.>
+  
 | config
   <App configuration and environment variables>
+  
 | controller
   <Interface adapters a.k.a the handler like API endpoint controller, message consumer, command line runner etc.>
+  
 | mock
   <Mock for all the interfaces in the project. Unit-testing purpose>
+  
 | model
   <Entities layer that can consist of DAO and DTO>
+  
 | proxy
   <Proxy client to external services>
+  
 | repository
   <Repository layer to interact with data storage such as db, redis, or even kafka>
+  
 | service
   <Use cases layer. Business logic goes here>
+  
 | Dockerfile
 | docker-compose.yml
 | main.go

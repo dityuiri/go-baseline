@@ -2,13 +2,15 @@ package controller
 
 import (
 	"context"
-	"encoding/json"
+	"github.com/dityuiri/go-baseline/adapter/logger"
+	"github.com/dityuiri/go-baseline/common"
 
 	"github.com/dityuiri/go-baseline/model"
 	"github.com/dityuiri/go-baseline/service"
 )
 
 type ConsumerHandler struct {
+	Logger                 logger.ILogger
 	PlaceholderFeedService service.IPlaceholderFeedService
 }
 
@@ -18,8 +20,9 @@ func (ch *ConsumerHandler) Placeholder(msg []byte) (bool, error) {
 		placeholder = &model.PlaceholderMessage{}
 	)
 
-	err := json.Unmarshal(msg, placeholder)
+	err := common.JsonUnmarshal(msg, placeholder)
 	if err != nil {
+		ch.Logger.Error("error unmarshalling message")
 		return true, err
 	}
 

@@ -65,9 +65,10 @@ func (ps *PlaceholderService) GetPlaceholder(ctx context.Context, placeholderID 
 			if err == sql.ErrNoRows {
 				ps.Logger.Info(fmt.Sprintf("placeholder with id %s not found", placeholderID))
 				err = common.ErrPlaceholderNotFound
+			} else {
+				ps.Logger.Error("error getting placeholder data from db")
 			}
 
-			ps.Logger.Error("error getting placeholder data from db")
 			return placeholderResp, err
 		}
 
@@ -88,6 +89,7 @@ func (ps *PlaceholderService) GetPlaceholder(ctx context.Context, placeholderID 
 	alphaReq := ps.mapPlaceholderDTOToAlphaStatusRequest(*placeholderDTO)
 	alphaResp, err := ps.AlphaProxy.GetPlaceholderStatus(ctx, alphaReq)
 	if err != nil {
+		ps.Logger.Error("get placeholder status error")
 		return placeholderResp, err
 	}
 

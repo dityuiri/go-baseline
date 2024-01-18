@@ -5,9 +5,7 @@ package proxy
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"github.com/dityuiri/go-baseline/model/alpha"
 	"net/http"
 
 	"github.com/dityuiri/go-baseline/adapter/client"
@@ -15,6 +13,7 @@ import (
 	"github.com/dityuiri/go-baseline/common"
 	"github.com/dityuiri/go-baseline/common/util"
 	"github.com/dityuiri/go-baseline/config"
+	"github.com/dityuiri/go-baseline/model/alpha"
 )
 
 type (
@@ -40,7 +39,7 @@ func (ap *AlphaProxy) GetPlaceholderStatus(ctx context.Context, alphaReq alpha.A
 		finalEndpoint = fmt.Sprintf("%s%s", ap.ClientConfiguration.ProxyURLs.AlphaURL, getPlaceholderStatus)
 	)
 
-	reqOut, err := json.Marshal(alphaReq)
+	reqOut, err := common.JsonMarshal(alphaReq)
 	if err != nil {
 		ap.Logger.Error("error marshaling request")
 		return *result, err
@@ -54,6 +53,7 @@ func (ap *AlphaProxy) GetPlaceholderStatus(ctx context.Context, alphaReq alpha.A
 	}
 
 	if err = util.HttpResponseBodyParser(resp, result); err != nil {
+		ap.Logger.Error(fmt.Sprintf("error parsing response: %s", err.Error()))
 		return *result, err
 	}
 
