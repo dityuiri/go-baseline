@@ -8,7 +8,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 
-	loggerMock "github.com/dityuiri/go-baseline/adapter/logger/mock"
+	loggerMock "github.com/dityuiri/go-adapter/logger/mock"
 	repositoryMock "github.com/dityuiri/go-baseline/mock/repository"
 	"github.com/dityuiri/go-baseline/model"
 )

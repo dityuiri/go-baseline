@@ -9,7 +9,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/dityuiri/go-baseline/adapter/logger/mock"
+	"github.com/dityuiri/go-adapter/logger/mock"
 	"github.com/dityuiri/go-baseline/common"
 	serviceMock "github.com/dityuiri/go-baseline/mock/service"
 	"github.com/dityuiri/go-baseline/model"

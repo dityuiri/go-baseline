@@ -1,6 +1,7 @@
 # Go-Baseline
 ## About the Service
-This is a go-baseline project that aims as a starting line for Go project. The concept of this baseline is trying to implement [Uncle Bob's Clean Code Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) combined with the experience from past projects.  
+This is a go-baseline project that aims as a starting line for Go project. The concept of this baseline is trying to implement [Uncle Bob's Clean Code Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) combined with the experience from past projects. 
+Project is using drivers/adapters from [https://github.com/dityuiri/go-adapter](https://github.com/dityuiri/go-adapter).
 
 ## Architecture
 ![Architecture](baseline-architecutre.png)
@@ -8,9 +9,6 @@ This is a go-baseline project that aims as a starting line for Go project. The c
 ## Project Directory
 ```
 go-baseline
-| adapter
-  <Implementation of frameworks & drivers layer such as DB, HTTP Client, HTTP Server, Logger etc.>
-  
 | application
   <App starter and dependency injector>
   

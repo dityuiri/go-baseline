@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
-	databaseMock "github.com/dityuiri/go-baseline/adapter/db/mock"
-	loggerMock "github.com/dityuiri/go-baseline/adapter/logger/mock"
+	databaseMock "github.com/dityuiri/go-adapter/db/mock"
+	loggerMock "github.com/dityuiri/go-adapter/logger/mock"
 	"github.com/dityuiri/go-baseline/model"
 )
 

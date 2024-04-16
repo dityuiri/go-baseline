@@ -2,7 +2,7 @@ package controller
 
 import (
 	"context"
-	"github.com/dityuiri/go-baseline/adapter/logger"
+	"github.com/dityuiri/go-adapter/logger"
 	"github.com/dityuiri/go-baseline/common"
 
 	"github.com/dityuiri/go-baseline/model"

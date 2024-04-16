@@ -1,8 +1,8 @@
 package application
 
 import (
-	"github.com/dityuiri/go-baseline/adapter/client"
-	"github.com/dityuiri/go-baseline/adapter/kafka/producer"
+	"github.com/dityuiri/go-adapter/client"
+	"github.com/dityuiri/go-adapter/kafka/producer"
 	"github.com/dityuiri/go-baseline/proxy"
 	"github.com/dityuiri/go-baseline/repository"
 	"github.com/dityuiri/go-baseline/service"

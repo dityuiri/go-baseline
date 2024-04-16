@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"github.com/dityuiri/go-baseline/adapter/logger"
+	"github.com/dityuiri/go-adapter/logger"
 	"github.com/dityuiri/go-baseline/common/util"
 	"github.com/dityuiri/go-baseline/service"
 )

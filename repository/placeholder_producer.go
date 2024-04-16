@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/dityuiri/go-baseline/adapter/kafka"
-	"github.com/dityuiri/go-baseline/adapter/kafka/producer"
+	"github.com/dityuiri/go-adapter/kafka"
+	"github.com/dityuiri/go-adapter/kafka/producer"
 	"github.com/dityuiri/go-baseline/config"
 	"github.com/dityuiri/go-baseline/model"
 )

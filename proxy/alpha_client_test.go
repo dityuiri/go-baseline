@@ -15,9 +15,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/dityuiri/go-baseline/adapter/client"
-	clientMock "github.com/dityuiri/go-baseline/adapter/client/mock"
-	loggerMock "github.com/dityuiri/go-baseline/adapter/logger/mock"
+	"github.com/dityuiri/go-adapter/client"
+	clientMock "github.com/dityuiri/go-adapter/client/mock"
+	loggerMock "github.com/dityuiri/go-adapter/logger/mock"
 	"github.com/dityuiri/go-baseline/common"
 	"github.com/dityuiri/go-baseline/config"
 	"github.com/dityuiri/go-baseline/model/alpha"

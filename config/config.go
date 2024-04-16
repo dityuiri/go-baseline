@@ -5,11 +5,11 @@ import (
 
 	"github.com/spf13/viper"
 
-	"github.com/dityuiri/go-baseline/adapter/client"
-	"github.com/dityuiri/go-baseline/adapter/db"
-	"github.com/dityuiri/go-baseline/adapter/kafka/consumer"
-	"github.com/dityuiri/go-baseline/adapter/kafka/producer"
-	"github.com/dityuiri/go-baseline/adapter/redis"
+	"github.com/dityuiri/go-adapter/client"
+	"github.com/dityuiri/go-adapter/db"
+	"github.com/dityuiri/go-adapter/kafka/consumer"
+	"github.com/dityuiri/go-adapter/kafka/producer"
+	"github.com/dityuiri/go-adapter/redis"
 )
 
 type (
