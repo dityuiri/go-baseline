@@ -2,11 +2,11 @@ package application
 
 import (
 	"context"
-	"github.com/dityuiri/go-baseline/adapter/db"
+	"github.com/dityuiri/go-adapter/db"
 
-	"github.com/dityuiri/go-baseline/adapter/kafka/consumer"
-	"github.com/dityuiri/go-baseline/adapter/logger"
-	"github.com/dityuiri/go-baseline/adapter/redis"
+	"github.com/dityuiri/go-adapter/kafka/consumer"
+	"github.com/dityuiri/go-adapter/logger"
+	"github.com/dityuiri/go-adapter/redis"
 	"github.com/dityuiri/go-baseline/config"
 )
 

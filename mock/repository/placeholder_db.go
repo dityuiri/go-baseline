@@ -9,7 +9,7 @@ import (
 	dao "github.com/dityuiri/go-baseline/model"
 	reflect "reflect"
 
-	db "github.com/dityuiri/go-baseline/adapter/db"
+	db "github.com/dityuiri/go-adapter/db"
 	gomock "github.com/golang/mock/gomock"
 )
 

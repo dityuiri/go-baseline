@@ -12,7 +12,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 
-	loggerMock "github.com/dityuiri/go-baseline/adapter/logger/mock"
+	loggerMock "github.com/dityuiri/go-adapter/logger/mock"
 	"github.com/dityuiri/go-baseline/mock"
 	serviceMock "github.com/dityuiri/go-baseline/mock/service"
 )

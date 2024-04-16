@@ -14,7 +14,7 @@ import (
 
 	"github.com/go-chi/chi"
 
-	"github.com/dityuiri/go-baseline/adapter/server"
+	"github.com/dityuiri/go-adapter/server"
 	"github.com/dityuiri/go-baseline/application"
 	"github.com/dityuiri/go-baseline/controller"
 )

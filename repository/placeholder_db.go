@@ -4,8 +4,8 @@ import (
 	"context"
 	"github.com/dityuiri/go-baseline/model"
 
-	"github.com/dityuiri/go-baseline/adapter/db"
-	"github.com/dityuiri/go-baseline/adapter/logger"
+	"github.com/dityuiri/go-adapter/db"
+	"github.com/dityuiri/go-adapter/logger"
 )
 
 //go:generate mockgen -package=repository_mock -destination=../mock/repository/placeholder_db.go . IPlaceholderRepository

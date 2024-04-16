@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"github.com/dityuiri/go-baseline/model"
 
-	"github.com/dityuiri/go-baseline/adapter/logger"
-	"github.com/dityuiri/go-baseline/adapter/redis"
+	"github.com/dityuiri/go-adapter/logger"
+	"github.com/dityuiri/go-adapter/redis"
 )
 
 type (

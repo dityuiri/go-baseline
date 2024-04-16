@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
-	producerMock "github.com/dityuiri/go-baseline/adapter/kafka/producer/mock"
+	producerMock "github.com/dityuiri/go-adapter/kafka/producer/mock"
 	"github.com/dityuiri/go-baseline/config"
 	"github.com/dityuiri/go-baseline/model"
 )

@@ -10,8 +10,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
-	loggerMock "github.com/dityuiri/go-baseline/adapter/logger/mock"
-	redisMock "github.com/dityuiri/go-baseline/adapter/redis/mock"
+	loggerMock "github.com/dityuiri/go-adapter/logger/mock"
+	redisMock "github.com/dityuiri/go-adapter/redis/mock"
 	"github.com/dityuiri/go-baseline/model"
 )
 

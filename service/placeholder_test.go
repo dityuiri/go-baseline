@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/dityuiri/go-baseline/common"
 	"testing"
 
 	"github.com/go-redis/redis"
@@ -12,7 +11,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
-	loggerMock "github.com/dityuiri/go-baseline/adapter/logger/mock"
+	loggerMock "github.com/dityuiri/go-adapter/logger/mock"
+	"github.com/dityuiri/go-baseline/common"
 	proxyMock "github.com/dityuiri/go-baseline/mock/proxy"
 	repositoryMock "github.com/dityuiri/go-baseline/mock/repository"
 	"github.com/dityuiri/go-baseline/model"
